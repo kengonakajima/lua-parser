@@ -1,4 +1,4 @@
 a=1
-a=2;
-a=3
-return 2;
+b=2;
+c=3
+return d;

@@ -2,15 +2,97 @@ class Lua
 
 rule
 
-chunk :  |
-  stat |
-  stat laststat |
-  laststat
+chunk :  
+  | statlist1 
+  | statlist1 laststat 
+  | laststat
   ;
 
-stat :FUNCTION;
+statlist1: stat { STDERR.print "STAT " }
+| statlist1 stat { STDERR.print "STAT-STAT " }
+;
 
-laststat : RETURN;
+stat : varlist1 '=' explist1 semi { STDERR.print "STAT " }
+| functioncall 
+| DO block END 
+| WHILE exp DO block END
+| REPEAT block UNTIL exp
+| FOR NAME '=' exp ',' exp DO block END
+| FOR NAME '=' exp ',' exp ',' exp DO block END
+| FUNCTION funcname funcbody { print "STAT-FUNCTION " }
+| LOCAL FUNCTION NAME funcbody
+| LOCAL namelist
+| LOCAL namelist '=' explist1 
+|
+;
+
+semi :   { STDERR.print "EMPTYEOL " }
+| ';' {  STDERR.print "SEMICOLON " }
+;
+
+
+laststat : RETURN semi { STDERR.print "RETURN " }
+| RETURN explist1 semi { STDERR.print "RETURN-explist1 " }
+| BREAK semi { STDERR.print "BREAK " }
+;
+
+
+funcname : calleeobjlist  { STDERR.print "CALLEEOBJLIST " }
+| calleeobjlist ':' NAME { STDERR.print "CALLEEOBJLIST : NAME " }
+;
+
+calleeobjlist : NAME  { STDERR.print "CALLEEOBJLIST-NAME " }
+| calleeobjlist '.' NAME { STDERR.print "CALLEEOBJLIST-DOT-NAME " }
+;
+
+function : FUNCTION funcbody { STDERR.print "FUNCTION-funcbody " }
+;
+
+funcbody : '(' parlist1 ')' block END { STDERR.print "FUNCBODY " }
+;
+
+block : chunk { print "BLOCK-CHUNK " }
+;
+
+parlist1 :  { STDERR.print "PARLIST1-NONE " }
+| namelist { STDERR.print "PARLIST1-NAMELIST " }
+| namelist ',' DOTDOTDOT { STDERR.print "PARLIST1-NAMELIST-DOTDOTDOT " }
+| DOTDOTDOT { STDERR.print "PARLIST1-DOTDOTDOT " }
+;
+
+namelist : NAME { print "NAMEILST-NAME " }
+| namelist ',' NAME { print "NAMELIST-NAME-COMMA-NAME " } 
+;
+
+varlist1 : var { STDERR.print "VARLIST1 " }
+| var ',' var
+;
+
+var : NAME  { STDERR.print "VARNAME=#{val[0]} " }
+;
+
+explist1 : exp { STDERR.print( "EXP ") }
+| explist1 ',' exp       
+;
+
+exp : NIL
+| FALSE
+| TRUE
+| NUMBER {STDERR.print "EXP-NUMBER=#{val[0]} "}
+| STRING
+| DOTDOTDOT
+| function { STDERR.print "EXP-FUNCTION " }
+| prefixexp
+| tableconstructor
+| exp binop exp
+| unop exp
+;
+
+prefixexp : var { STDERR.print "PREFIXEXP-VAR " }
+| functioncall { STDERR.print "PREFIXEXP-FUNCTIONCALL " }
+| '(' exp ')' { STDERR.print "PAREN-EXP " } 
+;
+
 
 
 end

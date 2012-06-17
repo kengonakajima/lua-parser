@@ -10,27 +10,44 @@ def next_token
 end
 
 def on_error(t,v,values)
-  print "ERROR: t:#{t} v:#{v} values:#{values}\n"
+  raise "ERROR: t:#{t} v:#{v} values:#{values}\n"
 end
 
 def parse(s)
   @q=[]   
-  print "AHo\n"
-  until s.empty?
+  until s.empty? 
     case s
     when /\A\s+/
     when /\A\d+/
       @q.push([ :NUMBER, $&.to_i ])
+    when /\A([a-zA-Z_][a-zA-Z_0-9]*)/
+      ss = $&
+      STDERR.print "W:#{ss} "
+      if ss == "function" then
+        @q.push([:FUNCTION,ss])
+      elsif ss == "return" then
+        @q.push([:RETURN,ss])
+      elsif ss == "end" then
+        @q.push([:END,ss])
+      else
+        @q.push([ :NAME, ss ])
+      end
+    when /\A\.\.\./
+      @q.push([:DOTDOTDOT,$&])
     when /\A.|\n/o
-      pk = $&
-      @q.push([pk,pk])
+      ss = $&
+      STDERR.print "C:#{ss} "
+      @q.push([ss,ss])
     else
       raise s
     end
     s = $'
   end
   @q.push([ false, '$end' ])
+#  @yydebug=true
+  print "\n"
   do_parse
+  print "\n"
 end
 
 
