@@ -138,6 +138,10 @@ def parse(s)
 
     case s
     when /\A\s+/      
+    when /\A--\[\[.*?\]\]/m
+      ep "LCOMMENT:-- "
+    when /\A--(.*)$/
+      ep "COMMENT:-- "
     when /\A\d+/
       ep "N:#{$&} "
       @q.push([ :NUMBER, $&.to_i ])

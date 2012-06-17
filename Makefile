@@ -4,6 +4,10 @@ all: test
 
 
 test: $(OUT)
+		ruby $(OUT) lcomment.lua
+		ruby $(OUT) comment.lua
+
+		ruby $(OUT) table3.lua
 		ruby $(OUT) lstr.lua
 		ruby $(OUT) nstr.lua
 
