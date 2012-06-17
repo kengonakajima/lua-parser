@@ -93,6 +93,23 @@ prefixexp : var { STDERR.print "PREFIXEXP-VAR " }
 | '(' exp ')' { STDERR.print "PAREN-EXP " } 
 ;
 
+tableconstructor : '{' fieldlist '}' { STDERR.print "TABLECONSTRUCTOR " }
+| '{' fieldlist fieldsep '}' { STDERR.print "TABLECONSTRUCTOR-2 " }
+;
+
+fieldlist : { STDERR.print "FIELDLIST-empty " }
+| field  { STDERR.print "FIELDLIST-field " }
+| fieldlist fieldsep field { STDERR.print "FIELDLIST-fieldsep-field " }
+;
+
+fieldsep : ',' { STDERR.print "FIELDSEP-COMMA " }
+| ';' { STDERR.print "FIELDSEP-SEMICOLLON " }
+;
+
+field :  '[' exp ']' '=' exp  { STDERR.print "FIELD-[exp]=exp " }
+| NAME '=' exp { STDERR.print "FIELD-NAME=exp " }
+| exp { STDERR.print "FIELD-exp " }
+;
 
 
 end

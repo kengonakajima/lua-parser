@@ -19,6 +19,7 @@ def parse(s)
     case s
     when /\A\s+/
     when /\A\d+/
+      STDERR.print "N:#{$&} "
       @q.push([ :NUMBER, $&.to_i ])
     when /\A([a-zA-Z_][a-zA-Z_0-9]*)/
       ss = $&
@@ -33,6 +34,7 @@ def parse(s)
         @q.push([ :NAME, ss ])
       end
     when /\A\.\.\./
+      STDERR.print "W:... "
       @q.push([:DOTDOTDOT,$&])
     when /\A.|\n/o
       ss = $&
