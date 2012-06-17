@@ -25,6 +25,24 @@ def findstring(s)
       if ch =~ /b|t|n|f|r|\"|\'|\\/
         escaping=false
       end
+      if ch =~ /[0-9]/ then
+        nch = chars.shift
+        print "NCH:#{nch} "
+        if nch =~ /[0-9]/ then
+          nnch = chars.shift
+          print "NNCH:#{nnch} "
+          out+=nch
+          if nnch =~ /[0-9]/ then
+            out+=nnch
+          else
+            chars.unshift(nnch)
+          end
+        else
+          chars.unshift(nch)
+        end
+        escaping=false
+      end
+            
       next
     end
 
@@ -64,6 +82,9 @@ expecteq( "nstresc", findstring("\"ahoあほ\\\"aho\"ahoaho") , "ahoあほ\\\"ah
 expecteq( "nstresc2", findstring("\"ahoあほ\\\\aho\"ahoaho") , "ahoあほ\\\\aho" )
 expecteq( "nstrescetc", findstring("\"ahoあほ\\b\\t\\n\\f\\raho\"ahoaho") , "ahoあほ\\b\\t\\n\\f\\raho" )
 expecteq( "nstrnotterm", findstring("\"ahoあほ\\\"ahoahoaho") , false )
+expecteq( "nstru1", findstring("\"aho\\0aho\"hoge" ), "aho\\0aho" )
+expecteq( "nstru2", findstring("\"aho\\01aho\"hoge" ), "aho\\01aho" )
+expecteq( "nstru3", findstring("\"aho\\012aho\"hoge" ), "aho\\012aho" )
 
 # charstring
 expecteq( "chstrfull", findstring("'ahoあほ'"), "ahoあほ" )
@@ -72,4 +93,6 @@ expecteq( "chstresc", findstring("'ahoあほ\\'aho'ahoaho") , "ahoあほ\\'aho" 
 expecteq( "chstresc2", findstring("'ahoあほ\\\\aho'ahoaho") , "ahoあほ\\\\aho" )
 expecteq( "chstrescetc", findstring("'ahoあほ\\b\\t\\n\\f\\raho'ahoaho") , "ahoあほ\\b\\t\\n\\f\\raho" )
 expecteq( "chstrnotterm", findstring("'ahoあほ\\'ahoahoaho") , false )
-
+expecteq( "chstru1", findstring("'aho\\0aho'hoge" ), "aho\\0aho" )
+expecteq( "chstru2", findstring("'aho\\01aho'hoge" ), "aho\\01aho" )
+expecteq( "chstru3", findstring("'aho\\012aho'hoge" ), "aho\\012aho" )
