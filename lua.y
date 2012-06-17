@@ -147,10 +147,15 @@ binop : PLUS { t "BINOP-PLUS " }
 | GT { t "BINOP-GT " }
 | GTE { t "BINOP-GTE " }
 | EQUAL  { t "BINOP-EQUAL " }
-| NOTEQUAL { t "BINOP-NOTEQUAL " }
+| NEQ { t "BINOP-NOTEQUAL " }
 | AND { t "BINOP-AND " }
 | OR { t "BINOP-OR " }
+;
 
+unop : MINUS { t "UNOP-MINUS " }
+| NOT { t "UNOP-NOT "  }
+| LENGTH { t "UNOP-LENGTH " }
+;
 
 
 

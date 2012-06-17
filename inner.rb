@@ -161,6 +161,15 @@ def parse(s)
     when /\A==/
       ep "OP:== "
       @q.push([:EQUAL,$&])
+    when /\A<=/
+      ep "OP:<= "
+      @q.push([:LTE,$&])
+    when /\A>=/
+      ep "OP:>= "
+      @q.push([:GTE,$&])
+    when /\A~=/
+      ep "OP:~= "
+      @q.push([:NEQ,$&])
     when /\A\+/
       ep "OP:+ "
       @q.push([:PLUS,$&])
@@ -182,15 +191,15 @@ def parse(s)
     when /\A\.\./
       ep "OP:.. "
       @q.push([:APPEND,$&])
-# | LT
-# | LTE
-# | GT
-# | GTE
-# | NOTEQUAL
-# | AND
-# | OR
-
-
+    when /\A</
+      ep "OP:< "
+      @q.push([:LT,$&])
+    when /\A>/
+      ep "OP:> "
+      @q.push([:GT,$&])
+    when /\A\#/
+      ep "OP:# "
+      @q.push([:LENGTH,$&])
     when /\A.|\n/o
       ss = $&
       ep "C:#{ss} "
