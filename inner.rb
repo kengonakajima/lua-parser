@@ -2,6 +2,8 @@
 # racc inner file
 #
 
+$KCODE='u'
+
 def initialize()
   @tested = Hash.new(0)
 end
@@ -20,12 +22,21 @@ def on_error(t,v,values)
 end
 
 
+def findstring(s)
+  if s =~ /\A\"a-zA-Z\"/
+end
+
 def parse(s)
   @q=[]   
   keywords = [ :FUNCTION, :RETURN, :END, :DO, :WHILE, :UNTIL, :REPEAT, :IF, :THEN, :ELSE, :ELSEIF, :FOR, :LOCAL, :AND, :OR, :BREAK, :NOT, :NIL, :FALSE, :TRUE ]
   kwh = {}
   keywords.each do |sym| kwh[sym.to_s.downcase] = sym end
   until s.empty? 
+    sret = findstring(s)
+    if sret then 
+      s = s[sret..-1]
+    end
+      
     case s
     when /\A\s+/      
     when /\A\d+/
@@ -42,15 +53,29 @@ def parse(s)
         @q.push([ :NAME, ss ])
       end
     when /\A==/
-      STDERR.print "W:== "
+      STDERR.print "OP:== "
       @q.push([:EQUAL,$&])
-# PLUS
-# | MINUS
-# | ASTERISK
-# | SLASH
-# | POWER
-# | MOD
-# | DOTDOT
+    when /\A\+/
+      STDERR.print "OP:+ "
+      @q.push([:PLUS,$&])
+    when /\A-/
+      STDERR.print "OP:- "
+      @q.push([:MINUS,$&])
+    when /\A\*/
+      STDERR.print "OP:* "
+      @q.push([:MUL,$&])
+    when /\A\//      
+      STDERR.print "OP:/ "
+      @q.push([:DIV,$&])
+    when /\A\^/      
+      STDERR.print "OP:^ "
+      @q.push([:POWER,$&])
+    when /\A%/      
+      STDERR.print "OP:% "
+      @q.push([:MOD,$&])
+    when /\A\.\./
+      STDERR.print "OP:.. "
+      @q.push([:APPEND,$&])
 # | LT
 # | LTE
 # | GT

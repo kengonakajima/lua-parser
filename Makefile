@@ -4,6 +4,9 @@ all: test
 
 
 test: $(OUT)
+		ruby $(OUT) nstr.lua
+
+		ruby $(OUT) ops.lua
 		ruby $(OUT) elseif.lua
 		ruby $(OUT) ifthen.lua
 

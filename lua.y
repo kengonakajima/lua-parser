@@ -90,7 +90,7 @@ exp : NIL { t "EXP-NIL " }
 | FALSE { t "EXP-FALSE " }
 | TRUE { t "EXP-TRUE " }
 | NUMBER {t "EXP-NUMBER=#{val[0]} "}
-| STRING {t "EXP-STRING" }
+| string {t "EXP-STRING" }
 | DOTDOTDOT { t "EXP-DOTDOTDOT " }
 | function { t "EXP-FUNCTION " }
 | prefixexp { t "EXP-PREFIXEXP " }
@@ -111,7 +111,7 @@ functioncall : prefixexp args { t "FUNCTIONCALL-prefixexp-args "}
 args : '(' explist1 ')' { t "ARGS-explist1 " }
 | '(' ')' { t "ARGS-empty " }
 | tableconstructor { t "ARGS-tableconstructor " }
-| STRING { t "ARGS-STRING " }
+| string { t "ARGS-STRING " }
 ;
 
 tableconstructor : '{' fieldlist '}' { t "TABLECONSTRUCTOR " }
@@ -132,21 +132,32 @@ field :  '[' exp ']' '=' exp  { t "FIELD-[exp]=exp " }
 | exp { t "FIELD-exp " }
 ;
 
-binop : PLUS
-| MINUS
-| ASTERISK
-| SLASH
-| POWER
-| MOD
-| DOTDOT
-| LT
-| LTE
-| GT
-| GTE
+string : NORMALSTRING { t "STRING-NORMALSTRING " }
+| CHARSTRING { t "STRING-CHARSTRING " }
+| LONGSTRING { t "STRING-LONGSTRING " }
+;
+
+
+
+binop : PLUS { t "BINOP-PLUS " }
+| MINUS { t "BINOP-MINUS " }
+| MUL { t "BINOP-MUL " }
+| DIV { t "BINOP-DIV " }
+| POWER { t "BINOP-POWER " }
+| MOD { t "BINOP-MOD " }
+| APPEND { t "BINOP-APPEND " }
+| LT { t "BINOP-LT " }
+| LTE { t "BINOP-LTE " }
+| GT { t "BINOP-GT " }
+| GTE { t "BINOP-GTE " }
 | EQUAL  { t "BINOP-EQUAL " }
-| NOTEQUAL
-| AND
-| OR
+| NOTEQUAL { t "BINOP-NOTEQUAL " }
+| AND { t "BINOP-AND " }
+| OR { t "BINOP-OR " }
+
+
+
+
 
 end
 
