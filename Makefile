@@ -4,6 +4,7 @@ all: test
 
 
 test: $(OUT)
+		ruby $(OUT) lstr.lua
 		ruby $(OUT) nstr.lua
 
 		ruby $(OUT) ops.lua

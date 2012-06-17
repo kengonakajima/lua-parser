@@ -90,7 +90,7 @@ exp : NIL { t "EXP-NIL " }
 | FALSE { t "EXP-FALSE " }
 | TRUE { t "EXP-TRUE " }
 | NUMBER {t "EXP-NUMBER=#{val[0]} "}
-| string {t "EXP-STRING" }
+| STRING {t "EXP-STRING=#{val[0]}" }
 | DOTDOTDOT { t "EXP-DOTDOTDOT " }
 | function { t "EXP-FUNCTION " }
 | prefixexp { t "EXP-PREFIXEXP " }
@@ -111,7 +111,7 @@ functioncall : prefixexp args { t "FUNCTIONCALL-prefixexp-args "}
 args : '(' explist1 ')' { t "ARGS-explist1 " }
 | '(' ')' { t "ARGS-empty " }
 | tableconstructor { t "ARGS-tableconstructor " }
-| string { t "ARGS-STRING " }
+| STRING { t "ARGS-STRING=#{val[0]} " }
 ;
 
 tableconstructor : '{' fieldlist '}' { t "TABLECONSTRUCTOR " }
@@ -132,10 +132,6 @@ field :  '[' exp ']' '=' exp  { t "FIELD-[exp]=exp " }
 | exp { t "FIELD-exp " }
 ;
 
-string : NORMALSTRING { t "STRING-NORMALSTRING " }
-| CHARSTRING { t "STRING-CHARSTRING " }
-| LONGSTRING { t "STRING-LONGSTRING " }
-;
 
 
 
