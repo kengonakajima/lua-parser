@@ -8,109 +8,145 @@ chunk :
   | laststat
   ;
 
-statlist1: stat { STDERR.print "STAT " }
-| statlist1 stat { STDERR.print "STAT-STAT " }
+statlist1: stat { t "STAT " }
+| statlist1 stat { t "STAT-STAT " }
 ;
 
-stat : varlist1 '=' explist1 semi { STDERR.print "STAT " }
+stat : varlist1 '=' explist1 semi { t "STAT " }
 | functioncall 
 | DO block END 
 | WHILE exp DO block END
 | REPEAT block UNTIL exp
 | FOR NAME '=' exp ',' exp DO block END
 | FOR NAME '=' exp ',' exp ',' exp DO block END
-| FUNCTION funcname funcbody { print "STAT-FUNCTION " }
+| FUNCTION funcname funcbody { t "STAT-FUNCTION " }
 | LOCAL FUNCTION NAME funcbody
 | LOCAL namelist
-| LOCAL namelist '=' explist1 
-|
+| LOCAL namelist '=' explist1
+| ifstat { t "STAT-ifstat " }
 ;
 
-semi :   { STDERR.print "EMPTYEOL " }
-| ';' {  STDERR.print "SEMICOLON " }
+ifstat : IF exp THEN block elseifstat elsestat END { t "IFSTAT " }
+;
+elseifstat : { t "ELSEIFSTAT-EMPTY " }
+| ELSEIF exp THEN block { t "ELSEIFSTAT-ELSEIF-EXP-THEN-BLOCK " }
+| elseifstat ELSEIF exp THEN block { t "ELSEIFSTAT-ELSEIFSTAT-ELSEIF-EXP-THEN-BLOCK " }
+;
+
+elsestat : { t "ELSESTAT-EMPTY " }
+| ELSE block { t "ELSESTAT-ELSE-BLOCK " }
+;
+
+semi :   { t "EMPTYEOL " }
+| ';' {  t "SEMICOLON " }
 ;
 
 
-laststat : RETURN semi { STDERR.print "RETURN " }
-| RETURN explist1 semi { STDERR.print "RETURN-explist1 " }
-| BREAK semi { STDERR.print "BREAK " }
+laststat : RETURN semi { t "RETURN " }
+| RETURN explist1 semi { t "RETURN-explist1 " }
+| BREAK semi { t "BREAK " }
 ;
 
 
-funcname : calleeobjlist  { STDERR.print "CALLEEOBJLIST " }
-| calleeobjlist ':' NAME { STDERR.print "CALLEEOBJLIST : NAME " }
+funcname : calleeobjlist  { t "CALLEEOBJLIST " }
+| calleeobjlist ':' NAME { t "CALLEEOBJLIST : NAME " }
 ;
 
-calleeobjlist : NAME  { STDERR.print "CALLEEOBJLIST-NAME " }
-| calleeobjlist '.' NAME { STDERR.print "CALLEEOBJLIST-DOT-NAME " }
+calleeobjlist : NAME  { t "CALLEEOBJLIST-NAME " }
+| calleeobjlist '.' NAME { t "CALLEEOBJLIST-DOT-NAME " }
 ;
 
-function : FUNCTION funcbody { STDERR.print "FUNCTION-funcbody " }
+function : FUNCTION funcbody { t "FUNCTION-funcbody " }
 ;
 
-funcbody : '(' parlist1 ')' block END { STDERR.print "FUNCBODY " }
+funcbody : '(' parlist1 ')' block END { t "FUNCBODY " }
 ;
 
-block : chunk { print "BLOCK-CHUNK " }
+block : chunk { t "BLOCK-CHUNK " }
 ;
 
-parlist1 :  { STDERR.print "PARLIST1-NONE " }
-| namelist { STDERR.print "PARLIST1-NAMELIST " }
-| namelist ',' DOTDOTDOT { STDERR.print "PARLIST1-NAMELIST-DOTDOTDOT " }
-| DOTDOTDOT { STDERR.print "PARLIST1-DOTDOTDOT " }
+parlist1 :  { t "PARLIST1-NONE " }
+| namelist { t "PARLIST1-NAMELIST " }
+| namelist ',' DOTDOTDOT { t "PARLIST1-NAMELIST-DOTDOTDOT " }
+| DOTDOTDOT { t "PARLIST1-DOTDOTDOT " }
 ;
 
-namelist : NAME { print "NAMEILST-NAME " }
-| namelist ',' NAME { print "NAMELIST-NAME-COMMA-NAME " } 
+namelist : NAME { t "NAMEILST-NAME " }
+| namelist ',' NAME { t "NAMELIST-NAME-COMMA-NAME " } 
 ;
 
-varlist1 : var { STDERR.print "VARLIST1 " }
+varlist1 : var { t "VARLIST1 " }
 | var ',' var
 ;
 
-var : NAME  { STDERR.print "VARNAME=#{val[0]} " }
+var : NAME  { t "VARNAME=#{val[0]} " }
 ;
 
-explist1 : exp { STDERR.print( "EXP ") }
-| explist1 ',' exp       
+explist1 : exp { t( "EXPLIST1 ") }
+| explist1 ',' exp  { t "EXPLIST1-exp " }
 ;
 
-exp : NIL
-| FALSE
-| TRUE
-| NUMBER {STDERR.print "EXP-NUMBER=#{val[0]} "}
-| STRING
-| DOTDOTDOT
-| function { STDERR.print "EXP-FUNCTION " }
-| prefixexp
-| tableconstructor
-| exp binop exp
-| unop exp
+exp : NIL { t "EXP-NIL " }
+| FALSE { t "EXP-FALSE " }
+| TRUE { t "EXP-TRUE " }
+| NUMBER {t "EXP-NUMBER=#{val[0]} "}
+| STRING {t "EXP-STRING" }
+| DOTDOTDOT { t "EXP-DOTDOTDOT " }
+| function { t "EXP-FUNCTION " }
+| prefixexp { t "EXP-PREFIXEXP " }
+| tableconstructor { t "EXP-TABLECONSTRUCTOR " }
+| exp binop exp { t "EXP-EXP-BINOP-EXP " }
+| unop exp { t "EXP-UNOP-EXP " }
 ;
 
-prefixexp : var { STDERR.print "PREFIXEXP-VAR " }
-| functioncall { STDERR.print "PREFIXEXP-FUNCTIONCALL " }
-| '(' exp ')' { STDERR.print "PAREN-EXP " } 
+prefixexp : var { t "PREFIXEXP-VAR " }
+| functioncall { t "PREFIXEXP-FUNCTIONCALL " }
+| '(' exp ')' { t "PAREN-EXP " } 
 ;
 
-tableconstructor : '{' fieldlist '}' { STDERR.print "TABLECONSTRUCTOR " }
-| '{' fieldlist fieldsep '}' { STDERR.print "TABLECONSTRUCTOR-2 " }
+functioncall : prefixexp args { t "FUNCTIONCALL-prefixexp-args "}
+| prefixexp ':' NAME args { t "FUNCTIONCALL-prefixexp-colon-name-args "}
 ;
 
-fieldlist : { STDERR.print "FIELDLIST-empty " }
-| field  { STDERR.print "FIELDLIST-field " }
-| fieldlist fieldsep field { STDERR.print "FIELDLIST-fieldsep-field " }
+args : '(' explist1 ')' { t "ARGS-explist1 " }
+| '(' ')' { t "ARGS-empty " }
+| tableconstructor { t "ARGS-tableconstructor " }
+| STRING { t "ARGS-STRING " }
 ;
 
-fieldsep : ',' { STDERR.print "FIELDSEP-COMMA " }
-| ';' { STDERR.print "FIELDSEP-SEMICOLLON " }
+tableconstructor : '{' fieldlist '}' { t "TABLECONSTRUCTOR " }
+| '{' fieldlist fieldsep '}' { t "TABLECONSTRUCTOR-2 " }
 ;
 
-field :  '[' exp ']' '=' exp  { STDERR.print "FIELD-[exp]=exp " }
-| NAME '=' exp { STDERR.print "FIELD-NAME=exp " }
-| exp { STDERR.print "FIELD-exp " }
+fieldlist : { t "FIELDLIST-empty " }
+| field  { t "FIELDLIST-field " }
+| fieldlist fieldsep field { t "FIELDLIST-fieldsep-field " }
 ;
 
+fieldsep : ',' { t "FIELDSEP-COMMA " }
+| ';' { t "FIELDSEP-SEMICOLLON " }
+;
+
+field :  '[' exp ']' '=' exp  { t "FIELD-[exp]=exp " }
+| NAME '=' exp { t "FIELD-NAME=exp " }
+| exp { t "FIELD-exp " }
+;
+
+binop : PLUS
+| MINUS
+| ASTERISK
+| SLASH
+| POWER
+| MOD
+| DOTDOT
+| LT
+| LTE
+| GT
+| GTE
+| EQUAL  { t "BINOP-EQUAL " }
+| NOTEQUAL
+| AND
+| OR
 
 end
 

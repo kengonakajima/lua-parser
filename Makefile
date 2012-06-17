@@ -4,6 +4,9 @@ all: test
 
 
 test: $(OUT)
+		ruby $(OUT) elseif.lua
+		ruby $(OUT) ifthen.lua
+
 		ruby $(OUT) dot3f.lua
 		ruby $(OUT) table2.lua
 		ruby $(OUT) table1.lua
