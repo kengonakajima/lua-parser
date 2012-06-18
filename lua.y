@@ -79,9 +79,10 @@ varlist1 : var { t "VARLIST1-VAR " }
 | varlist1 ',' var { t "varlist1-varlist1-var " }
 ;
 
-var : NAME  { push( :var, val[0].to_sym ) } # "VAR-NAME=#{val[0]} " }
-| prefixexp '[' exp ']' { t "VAR-prefixexp-exp " }
-| prefixexp '.' NAME { t "VAR-prefixexp-dot-name=#{val[0]} " }
+var : NAME  { push( :var, val[0].to_sym ) }
+| NAMEWIDHDOTS { push( :var, val[0].to_sym ) }
+| prefixexp '[' exp ']' { e=pop(:exp); pe=pop(:prefixexp); push( :var, [:tblget,pe,e]) }
+| prefixexp '.' NAME { pe=pop(:prefixexp); push(:var, [:tblget,pe,[:var,val[0].to_sym]]) }
 ;
 
 explist1 : exp { t( "EXPLIST1 ") }
@@ -108,7 +109,7 @@ number : INTNUMBER { push(:lit, val[0].to_i) }
 ;
 
 
-prefixexp : var { v=pop(:var); push(:prefixexp,v)  } # t "PREFIXEXP-VAR " }
+prefixexp : var { v=pop(:var); push(:prefixexp,v)  } 
 | functioncall { t "PREFIXEXP-FUNCTIONCALL " }
 | '(' exp ')' { t "PAREN-EXP " } 
 ;

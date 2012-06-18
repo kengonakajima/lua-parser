@@ -8,7 +8,8 @@ $(OUT):  lua.y inner.rb footer.rb
 
 
 s: $(OUT)
-	cat t.lua; ruby $(OUT) -s t.lua
+	ruby $(OUT) -s t.lua
+#	ruby $(OUT) -s test/var.lua
 #	ruby r.rb
 
 

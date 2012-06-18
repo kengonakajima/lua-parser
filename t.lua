@@ -1,3 +1,17 @@
+a.b=c.d
+a.b=c
+a[1]=2
+
+--x0,y0,x1 = poly[1],poly[2],poly[3]
+--[[
+if a.b then
+  p()
+end
+if a[1] then
+  q()
+end
+--]]
+
 --function a()
 --  return 2
 --end
