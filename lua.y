@@ -72,15 +72,17 @@ parlist1 :  { t "PARLIST1-NONE " }
 | DOTDOTDOT { t "PARLIST1-DOTDOTDOT " }
 ;
 
-namelist : NAME { t "NAMEILST-NAME " }
-| namelist ',' NAME { t "NAMELIST-NAME-COMMA-NAME " } 
+namelist : NAME { t "NAMEILST-NAME=#{val[0]} " }
+| namelist ',' NAME { t "NAMELIST-NAME-COMMA-NAME=#{val[0]} " } 
 ;
 
 varlist1 : var { t "VARLIST1 " }
 | var ',' var
 ;
 
-var : NAME  { t "VARNAME=#{val[0]} " }
+var : NAME  { t "VAR-NAME=#{val[0]} " }
+| prefixexp '[' exp ']' { t "VAR-prefixexp-exp " }
+| prefixexp '.' NAME { t "VAR-prefixexp-dot-name=#{val[0]} " }
 ;
 
 explist1 : exp { t( "EXPLIST1 ") }

@@ -9,6 +9,9 @@ def initialize()
 end
 
 def ep(*args)
+  STDERR.print(*args)
+end
+def lep(*args)
 #  STDERR.print(*args)
 end
 
@@ -148,7 +151,7 @@ def parse(s)
     gotstr,gotlen = findstring(s)
 
     if gotstr then 
-      ep "STR=#{gotstr},#{gotlen}\n"
+      lep "STR=#{gotstr},#{gotlen}\n"
       @q.push([:STRING, gotstr])
       s = s[gotlen..-1]
       next
@@ -157,70 +160,70 @@ def parse(s)
     case s
     when /\A\s+/      
     when /\A--\[\[.*?\]\]/m
-      ep "LCOMMENT:-- "
+      lep "LCOMMENT:-- "
     when /\A--(.*)$/
-      ep "COMMENT:-- "
+      lep "COMMENT:-- "
     when /\A\d+/
-      ep "N:#{$&} "
+      lep "N:#{$&} "
       @q.push([ :NUMBER, $&.to_i ])
     when /\A([a-zA-Z_][a-zA-Z_0-9]*)/
       ss = $&
       
       if kwh[ss] then
-        ep "KW:#{ss} " 
+        lep "KW:#{ss} " 
         @q.push([ kwh[ss],ss])
       else
-        ep "W:#{ss} " 
+        lep "W:#{ss} " 
         @q.push([ :NAME, ss ])
       end
     when /\A\.\.\./
-      ep "W:... " 
+      lep "W:... " 
       @q.push([:DOTDOTDOT,$&])
     when /\A==/
-      ep "OP:== "
+      lep "OP:== "
       @q.push([:EQUAL,$&])
     when /\A<=/
-      ep "OP:<= "
+      lep "OP:<= "
       @q.push([:LTE,$&])
     when /\A>=/
-      ep "OP:>= "
+      lep "OP:>= "
       @q.push([:GTE,$&])
     when /\A~=/
-      ep "OP:~= "
+      lep "OP:~= "
       @q.push([:NEQ,$&])
     when /\A\+/
-      ep "OP:+ "
+      lep "OP:+ "
       @q.push([:PLUS,$&])
     when /\A-/
-      ep "OP:- "
+      lep "OP:- "
       @q.push([:MINUS,$&])
     when /\A\*/
-      ep "OP:* "
+      lep "OP:* "
       @q.push([:MUL,$&])
     when /\A\//      
-      ep "OP:/ "
+      lep "OP:/ "
       @q.push([:DIV,$&])
     when /\A\^/      
-      ep "OP:^ "
+      lep "OP:^ "
       @q.push([:POWER,$&])
     when /\A%/      
-      ep "OP:% "
+      lep "OP:% "
       @q.push([:MOD,$&])
     when /\A\.\./
-      ep "OP:.. "
+      lep "OP:.. "
       @q.push([:APPEND,$&])
     when /\A</
-      ep "OP:< "
+      lep "OP:< "
       @q.push([:LT,$&])
     when /\A>/
-      ep "OP:> "
+      lep "OP:> "
       @q.push([:GT,$&])
     when /\A\#/
-      ep "OP:# "
+      lep "OP:# "
       @q.push([:LENGTH,$&])
     when /\A.|\n/o
       ss = $&
-      ep "C:#{ss} "
+      lep "C:#{ss} "
       @q.push([ss,ss])
     else
       raise s
@@ -228,7 +231,7 @@ def parse(s)
     s = $'
   end
   @q.push([ false, '$end' ])
-  ep "\n"
+  lep "\n"
 
 #  et = Time.now()
 #  STDERR.print "TOKENIZETIME:", (et-st), "\n" 
@@ -236,7 +239,7 @@ def parse(s)
 #  @yydebug=true
 
   do_parse
-  ep "\n"
+  lep "\n"
 
 
 end

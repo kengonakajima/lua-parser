@@ -3,8 +3,12 @@ OUT=luaparse.rb
 all: test
 
 
+
+
 test: $(OUT)
-#		ruby $(OUT) lumino.lua
+		ruby $(OUT) var.lua	
+		ruby $(OUT) lumino.lua
+
 		ruby $(OUT) mlstr.lua
 		ruby $(OUT) long.lua
 
