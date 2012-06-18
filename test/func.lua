@@ -1,0 +1,3 @@
+function noarg()
+end
+
