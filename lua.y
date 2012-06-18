@@ -3,9 +3,9 @@ class Lua
 rule
 
 chunk :   { push( :chunk ) }
-| statlist1 { sl= mpoprev(:stat); push( :chunk,[:statlist]+sl ) }
-| statlist1 laststat { t "CHUNK-STATLIST1 LASTSTAT " }
-| laststat { t "CHUNK-LASTSTAT " }
+| statlist1 { sl= mpoprev(:stat); push( :chunk,[:statlist]+sl,nil ) }
+| statlist1 laststat { ls=pop(:laststat); sl=mpoprev(:stat); push(:chunk, [:statlist]+sl,ls) }
+| laststat { ls=pop(:laststat); push(:chunk,nil,ls) }
 ;
 
 statlist1: stat { t "STATLIST1-STAT=#{@sout} " }
@@ -43,9 +43,9 @@ semi :   #{ t "SEMI-EMPTYEOL " }
 ;
 
 
-laststat : RETURN semi { t "RETURN " }
-| RETURN explist1 semi { t "RETURN-explist1 " }
-| BREAK semi { t "BREAK " }
+laststat : RETURN semi { t "LASTSTAT-RETURN " }
+| RETURN explist1 semi { el=mpoprev(:exp); ep("#EL:",el.size,"\n"); push(:laststat, [:return, [:explist]+el] ) } 
+| BREAK semi { t "LASTSTAT-BREAK " }
 ;
 
 
@@ -93,7 +93,7 @@ exp : NIL { t "EXP-NIL " }
 | FALSE { t "EXP-FALSE " }
 | TRUE { t "EXP-TRUE " }
 | number { n=pop(); push( :exp, n ) }
-| STRING { push( :exp, [:str, "\"#{val[0]}\""] ) } #t "EXP-STRING=#{val[0]}" }
+| STRING { push( :exp, [:str, "\"#{val[0]}\""] ) } 
 | DOTDOTDOT { t "EXP-DOTDOTDOT " }
 | function { t "EXP-FUNCTION " }
 | prefixexp { t "EXP-PREFIXEXP " }

@@ -32,7 +32,7 @@ def pop(*args)
   top = @stack.pop()
   sym = args[0]
   if sym and sym != top[0] then 
-    raise "pop: found invlalid #{top[0]}(#{typeof(top[0])}) expected:#{sym}"
+    raise "pop: found invlalid sym '#{top[0]}'(#{typeof(top[0])}) expected:#{sym}"
   else
     return top
   end
@@ -75,6 +75,8 @@ def ary2s(ary)
       out+= ":#{o}"
     elsif typeof(o) == Array then
       out+=ary2s(o)
+    elsif typeof(o) == NilClass then
+      out+="nil"
     else
       out+= o.to_s
     end
@@ -297,11 +299,13 @@ def parse(s,sout)
 
   do_parse
 
+  pp @stack
+
   topary = @stack.pop
   if @stack.size > 0 then
     raise "stack mismatch! size:#{@stack.size}\n"
   end
-  pp topary
+
   STDERR.print ary2s(topary),"\n"
 
 
