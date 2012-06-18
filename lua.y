@@ -13,7 +13,7 @@ statlist1: stat { t "STATLIST1-STAT=#{@sout} " }
 ;
 
 stat : varlist1 '=' explist1 semi { el=mpoprev(:exp); vl=mpoprev(:var); push( :stat,[:asign,[:varlist]+vl,[:explist]+el]) } # order is important!
-| functioncall  { t "STAT-functioncall " }
+| functioncall  { push( :stat, pop(:call)) }
 | DO block END  { t "STAT-do-block-end " }
 | WHILE exp DO block END
 | REPEAT block UNTIL exp
@@ -113,12 +113,12 @@ prefixexp : var { v=pop(:var); push(:prefixexp,v)  } # t "PREFIXEXP-VAR " }
 | '(' exp ')' { t "PAREN-EXP " } 
 ;
 
-functioncall : prefixexp args { t "FUNCTIONCALL-prefixexp-args "}
+functioncall : prefixexp args { a=pop(:args); pe=pop(:prefixexp); push(:call, pe,a) }
 | prefixexp ':' NAME args { t "FUNCTIONCALL-prefixexp-colon-name-args=#{val[0]} "}
 ;
 
-args : '(' explist1 ')' { t "ARGS-explist1 " }
-| '(' ')' { t "ARGS-empty " }
+args : '(' explist1 ')' { push(:args, [:explist]+mpoprev(:exp)) }
+| '(' ')' { push( :args ) }
 | tableconstructor { t "ARGS-tableconstructor " }
 | STRING { t "ARGS-STRING=#{val[0]} " }
 ;
