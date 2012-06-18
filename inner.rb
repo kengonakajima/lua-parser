@@ -38,7 +38,7 @@ def pop(*args)
   end
 end
 
-def mpop(sym)
+def mpoprev(sym)
 #  ep "mpop: sym:#{sym}\n"
   out=[]
   while true
@@ -52,7 +52,7 @@ def mpop(sym)
       break
     end
   end
-  return out
+  return out.reverse
 end
 
 def next_token
@@ -78,7 +78,7 @@ def ary2s(ary)
     else
       out+= o.to_s
     end
-    out+= ", " if i < ary.size-1 
+    out+= "," if i < ary.size-1 
   end
   out+= ")"
   return out
