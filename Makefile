@@ -4,6 +4,8 @@ all: test
 
 
 test: $(OUT)
+		ruby $(OUT) local.lua
+
 		ruby $(OUT) bool.lua
 
 		ruby $(OUT) unops.lua
