@@ -12,7 +12,7 @@ statlist1: stat { t "STATLIST1-STAT=#{@sout} " }
 | statlist1 stat { t "STATLIST1-STATLIST1-STAT " }
 ;
 
-stat : varlist1 '=' explist1 semi { el=mpoprev(:exp); vl=mpoprev(:var); push( :asign,[:varlist]+vl,[:explist]+el); a=pop(); push(:stat,a) }
+stat : varlist1 '=' explist1 semi { el=mpoprev(:exp); vl=mpoprev(:var); push( :asign,[:varlist]+vl,[:explist]+el); a=pop(:asign); push(:stat,a) }
 | functioncall  { t "STAT-functioncall " }
 | DO block END  { t "STAT-do-block-end " }
 | WHILE exp DO block END
@@ -92,11 +92,11 @@ explist1 : exp { t( "EXPLIST1 ") }
 exp : NIL { t "EXP-NIL " }
 | FALSE { t "EXP-FALSE " }
 | TRUE { t "EXP-TRUE " }
-| number { n=pop(); push( :exp, n ) }
+| number { push( :exp, pop()) }
 | STRING { push( :exp, [:str, "\"#{val[0]}\""] ) } 
 | DOTDOTDOT { t "EXP-DOTDOTDOT " }
 | function { t "EXP-FUNCTION " }
-| prefixexp { t "EXP-PREFIXEXP " }
+| prefixexp { push(:exp,pop(:prefixexp)) }
 | tableconstructor { t "EXP-TABLECONSTRUCTOR " }
 | exp binop exp { t "EXP-EXP-BINOP-EXP " }
 | unop exp { t "EXP-UNOP-EXP " }
@@ -109,7 +109,7 @@ number : INTNUMBER { push(:lit, val[0].to_i) }
 ;
 
 
-prefixexp : var { t "PREFIXEXP-VAR " }
+prefixexp : var { v=pop(:var); push(:prefixexp,v)  } # t "PREFIXEXP-VAR " }
 | functioncall { t "PREFIXEXP-FUNCTIONCALL " }
 | '(' exp ')' { t "PAREN-EXP " } 
 ;

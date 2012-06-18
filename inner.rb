@@ -24,7 +24,9 @@ end
 
 
 def push(*args)
-  ep "! "
+  raise "push: cannot push empty array" if args.size == 0
+  raise "push: first element must be a symbol" if typeof(args[0]) != Symbol
+  ep "(#{args[0]}) "
   @stack.push(args)
 end
 
@@ -34,6 +36,9 @@ def pop(*args)
   if sym and sym != top[0] then 
     raise "pop: found invlalid sym '#{top[0]}'(#{typeof(top[0])}) expected:#{sym}"
   else
+    if !top then
+      raise "pop: stack top is nil! args:'#{args}'"
+    end
     return top
   end
 end
@@ -51,6 +56,9 @@ def mpoprev(sym)
       @stack.push(top)
       break
     end
+  end
+  if out.size == 0 then
+    raise "mpoprev: output is empty for '#{sym}'"
   end
   return out.reverse
 end

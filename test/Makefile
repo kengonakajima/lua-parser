@@ -1,4 +1,4 @@
-OUT=../luaparse.rb
+OUT=../lua2sexp
 CMD=time ruby
 
 all: test
