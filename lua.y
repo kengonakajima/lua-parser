@@ -21,7 +21,7 @@ stat : varlist1 '=' explist1 semi { t "STAT " }
 | FOR NAME '=' exp ',' exp ',' exp DO block END
 | FOR namelist IN explist1 DO block END
 | FUNCTION funcname funcbody { t "STAT-FUNCTION " }
-| LOCAL FUNCTION NAME funcbody
+| LOCAL FUNCTION NAME funcbody { t "STAT-LOCAL-FUNCTION-NAME-FUNCBODY=#{val[0]} " }
 | LOCAL namelist
 | LOCAL namelist '=' explist1
 | ifstat { t "STAT-ifstat " }
@@ -50,11 +50,11 @@ laststat : RETURN semi { t "RETURN " }
 
 
 funcname : calleeobjlist  { t "CALLEEOBJLIST " }
-| calleeobjlist ':' NAME { t "CALLEEOBJLIST : NAME " }
+| calleeobjlist ':' NAME { t "CALLEEOBJLIST-NAME=#{val[0]} " }
 ;
 
-calleeobjlist : NAME  { t "CALLEEOBJLIST-NAME " }
-| calleeobjlist '.' NAME { t "CALLEEOBJLIST-DOT-NAME " }
+calleeobjlist : NAME  { t "CALLEEOBJLIST-NAME=#{val[0]} " }
+| calleeobjlist '.' NAME { t "CALLEEOBJLIST-DOT-NAME=#{val[0]} " }
 ;
 
 function : FUNCTION funcbody { t "FUNCTION-funcbody " }
@@ -92,7 +92,7 @@ explist1 : exp { t( "EXPLIST1 ") }
 exp : NIL { t "EXP-NIL " }
 | FALSE { t "EXP-FALSE " }
 | TRUE { t "EXP-TRUE " }
-| NUMBER {t "EXP-NUMBER=#{val[0]} "}
+| number {t "EXP-NUMBER " }
 | STRING {t "EXP-STRING=#{val[0]}" }
 | DOTDOTDOT { t "EXP-DOTDOTDOT " }
 | function { t "EXP-FUNCTION " }
@@ -102,13 +102,20 @@ exp : NIL { t "EXP-NIL " }
 | unop exp { t "EXP-UNOP-EXP " }
 ;
 
+number : INTNUMBER { t "NUMBER-NUMBER=#{val[0]} "}
+| FLOATNUMBER { t "NUMBER-FLOAT#{val[0]} " }
+| EXPNUMBER { t "NUMBER-EXP=#{val[0]} " }
+| HEXNUMBER { t "NUMBER-HEX=#{val[0]} " }
+;
+
+
 prefixexp : var { t "PREFIXEXP-VAR " }
 | functioncall { t "PREFIXEXP-FUNCTIONCALL " }
 | '(' exp ')' { t "PAREN-EXP " } 
 ;
 
 functioncall : prefixexp args { t "FUNCTIONCALL-prefixexp-args "}
-| prefixexp ':' NAME args { t "FUNCTIONCALL-prefixexp-colon-name-args "}
+| prefixexp ':' NAME args { t "FUNCTIONCALL-prefixexp-colon-name-args=#{val[0]} "}
 ;
 
 args : '(' explist1 ')' { t "ARGS-explist1 " }
@@ -131,7 +138,7 @@ fieldsep : ',' { t "FIELDSEP-COMMA " }
 ;
 
 field :  '[' exp ']' '=' exp  { t "FIELD-[exp]=exp " }
-| NAME '=' exp { t "FIELD-NAME=exp " }
+| NAME '=' exp { t "FIELD-NAME=exp(#{val[0]}) " }
 | exp { t "FIELD-exp " }
 ;
 

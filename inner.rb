@@ -163,9 +163,21 @@ def parse(s)
       lep "LCOMMENT:-- "
     when /\A--(.*)$/
       lep "COMMENT:-- "
+    when /\A(\d+\.\d+[eE][+\-]\d+)/
+      lep "EXPNUM2:#{$&} "
+      @q.push([ :EXPNUMBER, $& ])
+    when /\A(\d+[eE][+\-]\d+)/
+      lep "EXPNUM1:#{$&} "
+      @q.push([ :EXPNUMBER, $& ])
+    when /\A(0x[0-9a-fA-F]+)/
+      lep "HEXNUM:#{$&} "
+      @q.push([ :HEXNUMBER, $& ])
+    when /\A(\d+\.\d+)/
+      lep "FNUM:#{$&} "
+      @q.push([ :FLOATNUMBER, $& ])
     when /\A\d+/
-      lep "N:#{$&} "
-      @q.push([ :NUMBER, $&.to_i ])
+      lep "NUM:#{$&} "
+      @q.push([ :INTNUMBER, $& ])
     when /\A([a-zA-Z_][a-zA-Z_0-9]*)/
       ss = $&
       

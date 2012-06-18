@@ -6,6 +6,8 @@ all: test
 
 
 test: $(OUT)
+		ruby $(OUT) num.lua
+
 		ruby $(OUT) var.lua	
 		ruby $(OUT) lumino.lua
 
