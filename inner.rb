@@ -4,12 +4,13 @@
 
 $KCODE='u'
 
+
 def initialize()
   @tested = Hash.new(0)
 end
 
 def ep(*args)
-#  STDERR.print(*args)
+  STDERR.print(*args)
 end
 def lep(*args)
 #  STDERR.print(*args)
@@ -18,6 +19,28 @@ end
 def t(s)
   ep(s)
   @tested[s] += 1
+end
+
+
+def newproc(sexp)
+  return lambda do  return sexp end
+end
+
+def out(*args)
+  sexp="s("
+  converted=[]
+  args.each do |s|
+    if typeof(s) == Symbol then
+      converted.push(":#{s}")
+    elsif typeof(s) == Fixnum then
+      converted.push(s.to_s)
+    else
+      ep "out: unknown type:#{typeof(s)}\n"
+    end
+  end
+  sexp += converted.join(", ") + ")"
+#  ep "PUSH:", sexp,"\n"
+#  @stack.push(sexp)
 end
 
 
@@ -32,12 +55,7 @@ end
 
 # get string literal
 def findstring(s)
-
-#  chars = s.split("")
   chars = nil
-
-#  top = chars.shift
-
   top = s[0..0]
   multilinecount=0
 
@@ -73,10 +91,8 @@ def findstring(s)
       # octal escaping
       if ch =~ /[0-9]/ then
         nch = chars.shift
-#        print "NCH:#{nch} "
         if nch =~ /[0-9]/ then
           nnch = chars.shift
-#          print "NNCH:#{nnch} "
           out+=nch
           if nnch =~ /[0-9]/ then
             out+=nnch
@@ -88,9 +104,7 @@ def findstring(s)
         end
         escaping=false
       end
-
       # unicode escape : TODO: \u notation not working in 5.1?
-            
       next
     end
 
@@ -141,8 +155,9 @@ def findstring(s)
 end
 
 
-def parse(s)
-#  st = Time.now
+def parse(s,sout)
+  ep "SOUT:#{sout}\n"
+
   @q=[]   
   keywords = [ :FUNCTION, :RETURN, :END, :DO, :WHILE, :UNTIL, :REPEAT, :IF, :THEN, :ELSE, :ELSEIF, :FOR, :LOCAL, :AND, :OR, :BREAK, :NOT, :NIL, :FALSE, :TRUE, :IN ]
   kwh = {}
@@ -250,6 +265,39 @@ def parse(s)
 
 #  @yydebug=true
 
+  @stack = []
+  @stack.push([:var,:a])
+  @stack.push([:var,:b]) 
+  @stack.push([:lit,1])
+
+  @stack.push([:expr,@stack.pop])
+  @stack.push([:lit,2]) 
+  @stack.push([:expr,@stack.pop])
+
+  dumpstack()
+
+  params=[]
+  while true 
+    e = @stack.pop
+    break if !e
+    if e[0] == :expr or e[0] == :var then
+      params.push(e)
+    else
+      @stack.push(e)
+      break 
+    end
+  end
+  dumpstack()
+  ep "params.size:#{params.size}\n"
+    
+  @stack.push([:asign]+params)
+  
+  topary = @stack.pop
+  if @stack.size > 0 then
+    raise "stack mismatch! size:#{@stack.size}\n"
+  end
+  ep ary2s(topary),"\n"
+
   do_parse
   lep "\n"
 
@@ -257,3 +305,33 @@ def parse(s)
 end
 
 
+def ary2s(ary)
+  raise if !ary
+  out= "s(" 
+  raise "first element have to be a symbol:#{typeof(ary[0])}, #{ary.join(':')}" if typeof(ary[0])!=Symbol 
+  ary.size.times do |i|
+    o = ary[i]
+    if typeof(o) == Symbol then
+      out+= ":#{o}"
+    elsif typeof(o) == Array then
+      out+=ary2s(o)
+    else
+      out+= o.to_s
+    end
+    out+= ", " if i < ary.size-1 
+  end
+  out+= ")"
+  return out
+end
+
+def dumpstack()
+  ep "dumpstack: size:#{@stack.size}\n"
+  @stack.size.times do |i|
+    e = @stack[i]
+    raise "invalid type#{typeof(e)} " if typeof(e) !=Array
+    e.each do |ee|
+      ep "#{ee}(#{typeof(ee)}) "
+    end
+    ep "\n"
+  end
+end

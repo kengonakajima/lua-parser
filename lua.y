@@ -2,17 +2,17 @@ class Lua
 
 rule
 
-chunk :  
-  | statlist1 
-  | statlist1 laststat 
-  | laststat
-  ;
-
-statlist1: stat { t "STAT " }
-| statlist1 stat { t "STAT-STAT " }
+chunk :   { t "CHUNK-EMPTY " }
+| statlist1 { t "CHUNK-STATLIST1 " }
+| statlist1 laststat { t "CHUNK-STATLIST1 LASTSTAT " }
+| laststat { t "CHUNK-LASTSTAT " }
 ;
 
-stat : varlist1 '=' explist1 semi { t "STAT " }
+statlist1: stat { t "STATLIST1-STAT=#{@sout} " }
+| statlist1 stat { t "STATLIST1-STATLIST1-STAT " }
+;
+
+stat : varlist1 '=' explist1 semi { t "STAT-VARLIST1=EXPLIST1-SEMI " }
 | functioncall  { t "STAT-functioncall " }
 | DO block END  { t "STAT-do-block-end " }
 | WHILE exp DO block END
@@ -38,8 +38,8 @@ elsestat : { t "ELSESTAT-EMPTY " }
 | ELSE block { t "ELSESTAT-ELSE-BLOCK " }
 ;
 
-semi :   { t "SEMI-EMPTYEOL " }
-| ';' {  t "SEMI-SEMICOLON " }
+semi :   #{ t "SEMI-EMPTYEOL " }
+| ';' #{  t "SEMI-SEMICOLON " }
 ;
 
 
@@ -80,7 +80,7 @@ varlist1 : var { t "VARLIST1-VAR " }
 | varlist1 ',' var { t "varlist1-varlist1-var " }
 ;
 
-var : NAME  { t "VAR-NAME=#{val[0]} " }
+var : NAME  { out( :var, val[0].to_sym ) } # "VAR-NAME=#{val[0]} " }
 | prefixexp '[' exp ']' { t "VAR-prefixexp-exp " }
 | prefixexp '.' NAME { t "VAR-prefixexp-dot-name=#{val[0]} " }
 ;
@@ -92,7 +92,7 @@ explist1 : exp { t( "EXPLIST1 ") }
 exp : NIL { t "EXP-NIL " }
 | FALSE { t "EXP-FALSE " }
 | TRUE { t "EXP-TRUE " }
-| number {t "EXP-NUMBER " }
+| number { t "EXP-NUMBER " }
 | STRING {t "EXP-STRING=#{val[0]}" }
 | DOTDOTDOT { t "EXP-DOTDOTDOT " }
 | function { t "EXP-FUNCTION " }
@@ -102,10 +102,10 @@ exp : NIL { t "EXP-NIL " }
 | unop exp { t "EXP-UNOP-EXP " }
 ;
 
-number : INTNUMBER { t "NUMBER-NUMBER=#{val[0]} "}
-| FLOATNUMBER { t "NUMBER-FLOAT#{val[0]} " }
-| EXPNUMBER { t "NUMBER-EXP=#{val[0]} " }
-| HEXNUMBER { t "NUMBER-HEX=#{val[0]} " }
+number : INTNUMBER { out( :lit, val[0].to_i ) } 
+| FLOATNUMBER { out( :lit, val[0].to_f ) }
+| EXPNUMBER { out( :lit, val[0].to_f ) } 
+| HEXNUMBER { out( :lit, val[0].to_i(16)) }
 ;
 
 
@@ -173,6 +173,6 @@ unop : MINUS { t "UNOP-MINUS " }
 end
 
 
----- header
+---- header = header.rb
 ---- inner = inner.rb
 ---- footer = footer.rb

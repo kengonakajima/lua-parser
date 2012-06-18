@@ -8,7 +8,6 @@ test: $(OUT)
 		$(CMD) $(OUT) num.lua
 
 		$(CMD) $(OUT) var.lua	
-		$(CMD) $(OUT) lumino.lua
 
 		$(CMD) $(OUT) mlstr.lua
 		$(CMD) $(OUT) long.lua
@@ -49,3 +48,4 @@ test: $(OUT)
 		$(CMD) $(OUT) ret.lua
 		$(CMD) $(OUT) semi.lua
 
+		$(CMD) $(OUT) lumino.lua
