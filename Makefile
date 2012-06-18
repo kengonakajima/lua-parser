@@ -4,6 +4,11 @@ all: test
 
 
 test: $(OUT)
+#		ruby $(OUT) lumino.lua
+		ruby $(OUT) mlstr.lua
+		ruby $(OUT) long.lua
+
+
 		ruby $(OUT) forin.lua
 		ruby $(OUT) for.lua
 		ruby $(OUT) repeat.lua
@@ -41,8 +46,6 @@ test: $(OUT)
 
 
 
-
-#		ruby $(OUT) lumino.lua
 
 $(OUT):  lua.y inner.rb footer.rb *.lua
 		racc -g -E -l lua.y -o $(OUT)

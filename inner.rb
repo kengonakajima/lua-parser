@@ -9,7 +9,7 @@ def initialize()
 end
 
 def ep(*args)
-  STDERR.print(*args)
+#  STDERR.print(*args)
 end
 
 def t(s)
@@ -29,16 +29,26 @@ end
 
 # get string literal
 def findstring(s)
-  chars = s.split("")
-  top = chars.shift
+
+#  chars = s.split("")
+  chars = nil
+
+#  top = chars.shift
+
+  top = s[0..0]
+  multilinecount=0
 
   longtop = nil
   stype = nil
   if top == "\"" then
     stype = :NORMALSTR
+    chars = s.split("")
+    chars.shift
   elsif top == "'" then
     stype = :CHARSTR
-  elsif s =~ /^(\[(=*)\[)/ then
+    chars = s.split("")
+    chars.shift
+  elsif top == "[" and s =~ /^(\[(=*)\[)/ then
     stype = :LONGSTR
     longtop = $&
     chars = s[longtop.size..-1].split("")
@@ -104,15 +114,22 @@ def findstring(s)
     end
 
     if ch == "\"" and stype == :NORMALSTR then
-      return out, out.size + 2
+      return out, out.size + 2 + multilinecount
     end
     if ch == "'" and stype == :CHARSTR then
-      return out, out.size + 2
+      return out, out.size + 2 + multilinecount
     end
 
     if ch == "\\" then
-      escaping = true
-      out+=ch
+      nch = chars.shift
+      if nch == "\n" then
+        out+="\n"
+        multilinecount += 1
+      else
+        chars.unshift(nch)
+        escaping = true
+        out+=ch
+      end
     else
       out+=ch
     end
@@ -122,15 +139,16 @@ end
 
 
 def parse(s)
+#  st = Time.now
   @q=[]   
   keywords = [ :FUNCTION, :RETURN, :END, :DO, :WHILE, :UNTIL, :REPEAT, :IF, :THEN, :ELSE, :ELSEIF, :FOR, :LOCAL, :AND, :OR, :BREAK, :NOT, :NIL, :FALSE, :TRUE, :IN ]
   kwh = {}
   keywords.each do |sym| kwh[sym.to_s.downcase] = sym end
   until s.empty? 
-
     gotstr,gotlen = findstring(s)
-#    ep "FINDSTR: #{gotstr},#{gotlen}\n"
+
     if gotstr then 
+      ep "STR=#{gotstr},#{gotlen}\n"
       @q.push([:STRING, gotstr])
       s = s[gotlen..-1]
       next
@@ -149,14 +167,14 @@ def parse(s)
       ss = $&
       
       if kwh[ss] then
-        ep "KW:#{ss} "
+        ep "KW:#{ss} " 
         @q.push([ kwh[ss],ss])
       else
-        ep "W:#{ss} "
+        ep "W:#{ss} " 
         @q.push([ :NAME, ss ])
       end
     when /\A\.\.\./
-      ep "W:... "
+      ep "W:... " 
       @q.push([:DOTDOTDOT,$&])
     when /\A==/
       ep "OP:== "
@@ -210,10 +228,17 @@ def parse(s)
     s = $'
   end
   @q.push([ false, '$end' ])
+  ep "\n"
+
+#  et = Time.now()
+#  STDERR.print "TOKENIZETIME:", (et-st), "\n" 
+
 #  @yydebug=true
-  print "\n"
+
   do_parse
-  print "\n"
+  ep "\n"
+
+
 end
 
 

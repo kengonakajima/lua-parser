@@ -38,8 +38,8 @@ elsestat : { t "ELSESTAT-EMPTY " }
 | ELSE block { t "ELSESTAT-ELSE-BLOCK " }
 ;
 
-semi :   { t "EMPTYEOL " }
-| ';' {  t "SEMICOLON " }
+semi :   { t "SEMI-EMPTYEOL " }
+| ';' {  t "SEMI-SEMICOLON " }
 ;
 
 
