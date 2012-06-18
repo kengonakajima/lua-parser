@@ -2,8 +2,8 @@ class Lua
 
 rule
 
-chunk :   { t "CHUNK-EMPTY " }
-| statlist1 { t "CHUNK-STATLIST1 " }
+chunk :   { push( :chunk ) }
+| statlist1 { sl= mpop(:stat); push( :chunk,[:statlist]+sl ) }
 | statlist1 laststat { t "CHUNK-STATLIST1 LASTSTAT " }
 | laststat { t "CHUNK-LASTSTAT " }
 ;
@@ -12,7 +12,7 @@ statlist1: stat { t "STATLIST1-STAT=#{@sout} " }
 | statlist1 stat { t "STATLIST1-STATLIST1-STAT " }
 ;
 
-stat : varlist1 '=' explist1 semi { t "STAT-VARLIST1=EXPLIST1-SEMI " }
+stat : varlist1 '=' explist1 semi { el=mpop(:exp); vl=mpop(:var); push( :asign,[:varlist]+vl,[:explist]+el); a=pop(); push(:stat,a) }
 | functioncall  { t "STAT-functioncall " }
 | DO block END  { t "STAT-do-block-end " }
 | WHILE exp DO block END
@@ -80,7 +80,7 @@ varlist1 : var { t "VARLIST1-VAR " }
 | varlist1 ',' var { t "varlist1-varlist1-var " }
 ;
 
-var : NAME  { out( :var, val[0].to_sym ) } # "VAR-NAME=#{val[0]} " }
+var : NAME  { push( :var, val[0].to_sym ) } # "VAR-NAME=#{val[0]} " }
 | prefixexp '[' exp ']' { t "VAR-prefixexp-exp " }
 | prefixexp '.' NAME { t "VAR-prefixexp-dot-name=#{val[0]} " }
 ;
@@ -92,7 +92,7 @@ explist1 : exp { t( "EXPLIST1 ") }
 exp : NIL { t "EXP-NIL " }
 | FALSE { t "EXP-FALSE " }
 | TRUE { t "EXP-TRUE " }
-| number { t "EXP-NUMBER " }
+| number { n=pop(); push( :exp, n ) }
 | STRING {t "EXP-STRING=#{val[0]}" }
 | DOTDOTDOT { t "EXP-DOTDOTDOT " }
 | function { t "EXP-FUNCTION " }
@@ -102,10 +102,10 @@ exp : NIL { t "EXP-NIL " }
 | unop exp { t "EXP-UNOP-EXP " }
 ;
 
-number : INTNUMBER { out( :lit, val[0].to_i ) } 
-| FLOATNUMBER { out( :lit, val[0].to_f ) }
-| EXPNUMBER { out( :lit, val[0].to_f ) } 
-| HEXNUMBER { out( :lit, val[0].to_i(16)) }
+number : INTNUMBER { push(:lit, val[0].to_i) } 
+| FLOATNUMBER { push( :lit, val[0].to_f ) }
+| EXPNUMBER { push( :lit, val[0].to_f ) } 
+| HEXNUMBER { push( :lit, val[0].to_i(16)) }
 ;
 
 

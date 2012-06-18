@@ -22,27 +22,38 @@ def t(s)
 end
 
 
-def newproc(sexp)
-  return lambda do  return sexp end
+
+def push(*args)
+  ep "! "
+  @stack.push(args)
 end
 
-def out(*args)
-  sexp="s("
-  converted=[]
-  args.each do |s|
-    if typeof(s) == Symbol then
-      converted.push(":#{s}")
-    elsif typeof(s) == Fixnum then
-      converted.push(s.to_s)
+def pop(*args)
+  top = @stack.pop()
+  sym = args[0]
+  if sym and sym != top[0] then 
+    raise "pop: found invlalid #{top[0]}(#{typeof(top[0])}) expected:#{sym}"
+  else
+    return top
+  end
+end
+
+def mpop(sym)
+#  ep "mpop: sym:#{sym}\n"
+  out=[]
+  while true
+    top = @stack.pop
+    break if !top
+    if top[0] == sym then 
+#      ep "FOUND on top:#{top[0]}\n"
+      out.push(top)
     else
-      ep "out: unknown type:#{typeof(s)}\n"
+      @stack.push(top)
+      break
     end
   end
-  sexp += converted.join(", ") + ")"
-#  ep "PUSH:", sexp,"\n"
-#  @stack.push(sexp)
+  return out
 end
-
 
 def next_token
   @q.shift
@@ -51,6 +62,28 @@ end
 def on_error(t,v,values)
   raise "ERROR: t:#{t} v:#{v} values:#{values}\n"
 end
+
+def ary2s(ary)
+  raise if !ary
+  out= "s(" 
+  if typeof(ary[0])!=Symbol 
+    raise "first element have to be a symbol:#{typeof(ary[0])}, #{ary.join(':')}" 
+  end
+  ary.size.times do |i|
+    o = ary[i]
+    if typeof(o) == Symbol then
+      out+= ":#{o}"
+    elsif typeof(o) == Array then
+      out+=ary2s(o)
+    else
+      out+= o.to_s
+    end
+    out+= ", " if i < ary.size-1 
+  end
+  out+= ")"
+  return out
+end
+
 
 
 # get string literal
@@ -156,7 +189,6 @@ end
 
 
 def parse(s,sout)
-  ep "SOUT:#{sout}\n"
 
   @q=[]   
   keywords = [ :FUNCTION, :RETURN, :END, :DO, :WHILE, :UNTIL, :REPEAT, :IF, :THEN, :ELSE, :ELSEIF, :FOR, :LOCAL, :AND, :OR, :BREAK, :NOT, :NIL, :FALSE, :TRUE, :IN ]
@@ -260,78 +292,19 @@ def parse(s,sout)
   @q.push([ false, '$end' ])
   lep "\n"
 
-#  et = Time.now()
-#  STDERR.print "TOKENIZETIME:", (et-st), "\n" 
-
-#  @yydebug=true
 
   @stack = []
-  @stack.push([:var,:a])
-  @stack.push([:var,:b]) 
-  @stack.push([:lit,1])
 
-  @stack.push([:expr,@stack.pop])
-  @stack.push([:lit,2]) 
-  @stack.push([:expr,@stack.pop])
+  do_parse
 
-  dumpstack()
-
-  params=[]
-  while true 
-    e = @stack.pop
-    break if !e
-    if e[0] == :expr or e[0] == :var then
-      params.push(e)
-    else
-      @stack.push(e)
-      break 
-    end
-  end
-  dumpstack()
-  ep "params.size:#{params.size}\n"
-    
-  @stack.push([:asign]+params)
-  
   topary = @stack.pop
   if @stack.size > 0 then
     raise "stack mismatch! size:#{@stack.size}\n"
   end
-  ep ary2s(topary),"\n"
-
-  do_parse
-  lep "\n"
+  pp topary
+  STDERR.print ary2s(topary),"\n"
 
 
 end
 
 
-def ary2s(ary)
-  raise if !ary
-  out= "s(" 
-  raise "first element have to be a symbol:#{typeof(ary[0])}, #{ary.join(':')}" if typeof(ary[0])!=Symbol 
-  ary.size.times do |i|
-    o = ary[i]
-    if typeof(o) == Symbol then
-      out+= ":#{o}"
-    elsif typeof(o) == Array then
-      out+=ary2s(o)
-    else
-      out+= o.to_s
-    end
-    out+= ", " if i < ary.size-1 
-  end
-  out+= ")"
-  return out
-end
-
-def dumpstack()
-  ep "dumpstack: size:#{@stack.size}\n"
-  @stack.size.times do |i|
-    e = @stack[i]
-    raise "invalid type#{typeof(e)} " if typeof(e) !=Array
-    e.each do |ee|
-      ep "#{ee}(#{typeof(ee)}) "
-    end
-    ep "\n"
-  end
-end
