@@ -4,6 +4,9 @@ all: test
 
 
 test: $(OUT)
+		ruby $(OUT) while.lua
+		ruby $(OUT) do.lua
+
 		ruby $(OUT) local.lua
 
 		ruby $(OUT) bool.lua
