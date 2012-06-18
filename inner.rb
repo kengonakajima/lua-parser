@@ -26,6 +26,7 @@ end
 def push(*args)
   raise "push: cannot push empty array" if args.size == 0
   raise "push: first element must be a symbol" if typeof(args[0]) != Symbol
+#  ep "(#{args.join(':')}) "
   ep "(#{args[0]}) "
   @stack.push(args)
 end

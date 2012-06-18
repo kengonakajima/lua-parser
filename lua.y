@@ -24,19 +24,44 @@ stat : varlist1 '=' explist1 semi { el=mpoprev(:exp); vl=mpoprev(:var); push( :s
 | LOCAL FUNCTION NAME funcbody { t "STAT-LOCAL-FUNCTION-NAME-FUNCBODY=#{val[0]} " }
 | LOCAL namelist
 | LOCAL namelist '=' explist1
-| ifstat { t "STAT-ifstat " }
+| ifstat { push(:stat,pop(:if)) }
 ;
 
-ifstat : IF exp THEN block elseifstat elsestat END { t "IFSTAT " }
+ifstat : IF exp THEN block END { ep("AA"); tru=pop(:block);e=pop(:exp); push(:if,e,tru,nil) }
+| IF exp THEN block ELSE block END { ep("BB"); fal=pop(:block);tru=pop(:block);e=pop(:exp); push(:if,e,tru,fal) }
+| IF exp THEN block elseifstat END { ep("CC"); elif=pop(:block); tru=pop(:block);e=pop(:exp); push(:if,e,tru,elif) }
 ;
-elseifstat : { t "ELSEIFSTAT-EMPTY " }
-| ELSEIF exp THEN block { t "ELSEIFSTAT-ELSEIF-EXP-THEN-BLOCK " }
-| elseifstat ELSEIF exp THEN block { t "ELSEIFSTAT-ELSEIFSTAT-ELSEIF-EXP-THEN-BLOCK " }
+elseifstat : ELSEIF exp THEN block { ep("ELAA"); tru=pop(:block);e=pop(:exp); push(:block, [:if,e,tru,nil]) }
+| ELSEIF exp THEN block ELSE block { ep("ELBB"); fal=pop(:block);tru=pop(:block); e=pop(:exp); push(:block,[:if,e,tru,fal]) }
+| elseifstat ELSEIF exp THEN block {
+    ep("ELCC\n");
+    tru=pop(:block);e=pop(:exp); elif=pop(:block); 
+    pp elif;
+    pp tru;
+    elif_if = elif[1];
+    pp elif_if;
+    push(:block,[:if,elif_if[1],elif_if[2], [:block, [:if, e,tru,nil]]])
+
+#     [:if,                                   if a
+#      [:exp, [:prefixexp, [:var, :a]]],   
+#      [:block, [:chunk]],               then
+#      [:stat,                              else
+#       [:block, 
+#        [:if,                                   if 
+#         [:if, [:exp, [:prefixexp, [:var, :b]]], [:block, [:chunk]], nil], 
+#         nil, 
+#         [:block, 
+#          [:if, 
+#           [:exp, [:prefixexp, [:var, :c]]], 
+#           [:block, [:chunk]], 
+#           nil]]]]]]]], 
+        
+    
+    ep("ELCCEND\n") }
 ;
 
-elsestat : { t "ELSESTAT-EMPTY " }
-| ELSE block { t "ELSESTAT-ELSE-BLOCK " }
-;
+#elsestat : ELSE block { t "ELSESTAT-ELSE-BLOCK " }
+#;
 
 semi :   #{ t "SEMI-EMPTYEOL " }
 | ';' #{  t "SEMI-SEMICOLON " }

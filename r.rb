@@ -6,6 +6,9 @@ def showit(s)
   print "#{s} \n          ", @p.parse(s),"\n" 
 end
 
+showit( "if a then b() end")
+showit( "if a then b() else c() end")
+showit( "if a then b() elsif x then c() else d() end")
 
 showit( "8" )
 showit( "a=1" )
@@ -25,7 +28,7 @@ showit( "a(2,3)")
 showit( "s=\"aho\"" )
 showit( "s=a+1")
 showit( "s=a and b")
-showit( "if a then b() else c() end")
+
 showit( "a,b,c=1,2" )
 showit( "a,b=1,2,3" )
 showit( "while true do end" )

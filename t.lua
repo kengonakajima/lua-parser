@@ -1,8 +1,19 @@
-a.b=c.d
-a.b=c
-a[1]=2
+if a then
+elseif b then
+elseif c then
+  if d then
+  end  
+end
+
+
 
 --x0,y0,x1 = poly[1],poly[2],poly[3]
+
+--a.b=c.d
+--a.b=c
+--a[1]=2
+
+
 --[[
 if a.b then
   p()
