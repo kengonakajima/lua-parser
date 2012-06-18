@@ -13,7 +13,7 @@ def ep(*args)
   STDERR.print(*args)
 end
 def lep(*args)
-#  STDERR.print(*args)
+  STDERR.print(*args)
 end
 
 def t(s)
@@ -32,13 +32,13 @@ end
 
 def pop(*args)
   top = @stack.pop()
+  if !top then
+    raise "pop: stack top is nil! args:'#{args}'"
+  end
   sym = args[0]
   if sym and sym != top[0] then 
     raise "pop: found invlalid sym '#{top[0]}'(#{typeof(top[0])}) expected:#{sym}"
   else
-    if !top then
-      raise "pop: stack top is nil! args:'#{args}'"
-    end
     return top
   end
 end
@@ -235,15 +235,20 @@ def parse(s,sout)
     when /\A\d+/
       lep "NUM:#{$&} "
       @q.push([ :INTNUMBER, $& ])
-    when /\A([a-zA-Z_][a-zA-Z_0-9]*)/
+    when /\A([a-zA-Z_][a-zA-Z_0-9.]*)/
       ss = $&
       
       if kwh[ss] then
         lep "KW:#{ss} " 
         @q.push([ kwh[ss],ss])
       else
-        lep "W:#{ss} " 
-        @q.push([ :NAME, ss ])
+        if ss.include?( "." ) then
+          lep "NWD:#{ss} " 
+          @q.push([ :NAMEWIDHDOTS, ss ])
+        else
+          lep "N:#{ss} " 
+          @q.push([ :NAME, ss ])
+        end
       end
     when /\A\.\.\./
       lep "W:... " 

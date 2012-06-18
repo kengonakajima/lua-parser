@@ -12,7 +12,7 @@ statlist1: stat { t "STATLIST1-STAT=#{@sout} " }
 | statlist1 stat { t "STATLIST1-STATLIST1-STAT " }
 ;
 
-stat : varlist1 '=' explist1 semi { el=mpoprev(:exp); vl=mpoprev(:var); push( :asign,[:varlist]+vl,[:explist]+el); a=pop(:asign); push(:stat,a) }
+stat : varlist1 '=' explist1 semi { el=mpoprev(:exp); vl=mpoprev(:var); push( :stat,[:asign,[:varlist]+vl,[:explist]+el]) } # order is important!
 | functioncall  { t "STAT-functioncall " }
 | DO block END  { t "STAT-do-block-end " }
 | WHILE exp DO block END
@@ -20,7 +20,7 @@ stat : varlist1 '=' explist1 semi { el=mpoprev(:exp); vl=mpoprev(:var); push( :a
 | FOR NAME '=' exp ',' exp DO block END
 | FOR NAME '=' exp ',' exp ',' exp DO block END
 | FOR namelist IN explist1 DO block END
-| FUNCTION funcname funcbody { t "STAT-FUNCTION " }
+| FUNCTION funcname funcbody { b=pop(:funcbody);n=pop(:funcname); push(:stat,[:function,n,b]) }
 | LOCAL FUNCTION NAME funcbody { t "STAT-LOCAL-FUNCTION-NAME-FUNCBODY=#{val[0]} " }
 | LOCAL namelist
 | LOCAL namelist '=' explist1
@@ -49,25 +49,24 @@ laststat : RETURN semi { t "LASTSTAT-RETURN " }
 ;
 
 
-funcname : calleeobjlist  { t "CALLEEOBJLIST " }
-| calleeobjlist ':' NAME { t "CALLEEOBJLIST-NAME=#{val[0]} " }
+funcname : NAME  { push( :funcname, val[0].to_sym) }
+| NAMEWIDHDOTS  { push( :funcname, val[0].to_sym) }
+| NAME ':' NAME{ push( :funcname, (val[0]+":"+val[2]).to_sym) }
+| NAMEWIDHDOTS ':' NAME { push( :funcname,(val[0]+":"+val[2]).to_sym) }
 ;
 
-calleeobjlist : NAME  { t "CALLEEOBJLIST-NAME=#{val[0]} " }
-| calleeobjlist '.' NAME { t "CALLEEOBJLIST-DOT-NAME=#{val[0]} " }
-;
 
 function : FUNCTION funcbody { t "FUNCTION-funcbody " }
 ;
 
-funcbody : '(' parlist1 ')' block END { t "FUNCBODY " }
+funcbody : '(' parlist1 ')' block END { t "FUNCBODY-PARLIST1 " }
+| '(' ')' block END { push( :funcbody, pop(:block)) }
 ;
 
-block : chunk { t "BLOCK-CHUNK " }
+block : chunk { push(:block, pop(:chunk)) }
 ;
 
-parlist1 :  { t "PARLIST1-NONE " }
-| namelist { t "PARLIST1-NAMELIST " }
+parlist1 :namelist { t "PARLIST1-NAMELIST " }
 | namelist ',' DOTDOTDOT { t "PARLIST1-NAMELIST-DOTDOTDOT " }
 | DOTDOTDOT { t "PARLIST1-DOTDOTDOT " }
 ;
