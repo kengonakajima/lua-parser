@@ -76,8 +76,8 @@ namelist : NAME { t "NAMEILST-NAME=#{val[0]} " }
 | namelist ',' NAME { t "NAMELIST-NAME-COMMA-NAME=#{val[0]} " } 
 ;
 
-varlist1 : var { t "VARLIST1 " }
-| var ',' var
+varlist1 : var { t "VARLIST1-VAR " }
+| varlist1 ',' var { t "varlist1-varlist1-var " }
 ;
 
 var : NAME  { t "VAR-NAME=#{val[0]} " }

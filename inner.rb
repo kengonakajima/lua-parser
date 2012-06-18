@@ -9,7 +9,7 @@ def initialize()
 end
 
 def ep(*args)
-  STDERR.print(*args)
+#  STDERR.print(*args)
 end
 def lep(*args)
 #  STDERR.print(*args)
