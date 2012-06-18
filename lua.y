@@ -13,12 +13,13 @@ statlist1: stat { t "STAT " }
 ;
 
 stat : varlist1 '=' explist1 semi { t "STAT " }
-| functioncall 
-| DO block END 
+| functioncall  { t "STAT-functioncall " }
+| DO block END  { t "STAT-do-block-end " }
 | WHILE exp DO block END
 | REPEAT block UNTIL exp
 | FOR NAME '=' exp ',' exp DO block END
 | FOR NAME '=' exp ',' exp ',' exp DO block END
+| FOR namelist IN explist1 DO block END
 | FUNCTION funcname funcbody { t "STAT-FUNCTION " }
 | LOCAL FUNCTION NAME funcbody
 | LOCAL namelist

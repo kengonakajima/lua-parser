@@ -4,6 +4,9 @@ all: test
 
 
 test: $(OUT)
+		ruby $(OUT) forin.lua
+		ruby $(OUT) for.lua
+		ruby $(OUT) repeat.lua
 		ruby $(OUT) while.lua
 		ruby $(OUT) do.lua
 
