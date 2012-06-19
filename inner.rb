@@ -273,7 +273,7 @@ def parse(s,sout)
     when /\A\d+/
       lep "NUM:#{$&} "
       @q.push([ :INTNUMBER, $& ])
-    when /\A([a-zA-Z_][a-zA-Z_0-9.]*)/
+    when /\A([a-zA-Z_]([a-zA-Z_0-9]+[a-zA-Z_0-9.])*)/
       ss = $&
       
       if kwh[ss] then

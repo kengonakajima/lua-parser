@@ -4,6 +4,7 @@ out=a>=2
 out=a>2
 out=a<2
 out=a.."2"
+out=a.b..c.d
 out=a%2
 out=a^2
 out=a/2

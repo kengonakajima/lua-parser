@@ -1,3 +1,36 @@
+
+--[[
+out=a~=2
+out=a<=2
+out=a>=2
+out=a>2
+out=a<2
+out=a.."2"
+out=a.b..a.c
+out=a%2
+out=a^2
+out=a/2
+out=a*2
+out=a-2
+out=a+2
+out=a==1
+--]]
+
+--[[
+out= a and true
+out= a and not true
+out= not a and not true
+out= ((not a) and (not true))
+out= not a and (not true)
+--]]
+
+
+
+
+
+--function a() local x={1,2,3,4,5,6,7,8,9,10,11,12,13} end
+
+--[[
 if a==nil then
 --  f()
 elseif b==2 then
@@ -7,6 +40,8 @@ elseif b==2 then
 --else
 --  i()
 end
+--]]
+
 
 --[[
 if a==nil then

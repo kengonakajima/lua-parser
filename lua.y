@@ -1,5 +1,12 @@
 class Lua
 
+prechigh
+ nonassoc MINUS NOT
+ left AND
+ left OR
+preclow
+
+
 rule
 
 chunk :   { ep("SL0"); push( :chunk ) }
@@ -95,16 +102,16 @@ explist1 : exp { t( "EXPLIST1 ") }
 ;
 
 exp : NIL { push(:exp,[:nil]) }
-| FALSE { t "EXP-FALSE " }
-| TRUE { t "EXP-TRUE " }
+| FALSE { push(:exp, [:false]) }
+| TRUE { push(:exp, [:true]) }
 | number { push( :exp, pop()) }
 | STRING { push( :exp, [:str, "\"#{val[0]}\""] ) } 
 | DOTDOTDOT { t "EXP-DOTDOTDOT " }
 | function { t "EXP-FUNCTION " }
-| prefixexp { push(:exp,pop(:prefixexp)) }
+| prefixexp { ep"exp-pfexp "; push(:exp,pop(:prefixexp)) }
 | tableconstructor { t "EXP-TABLECONSTRUCTOR " }
 | exp binop exp { ep("EXP-BINOP-EXP"); e1=pop(:exp); op=pop(:op); e2=pop(:exp); push(:exp, [:binop, e2,op,e1] ) }
-| unop exp { t "EXP-UNOP-EXP " }
+| unop exp { e=pop(:exp); op=pop(:op); push(:exp, [:unop, e, op] ) }
 ;
 
 number : INTNUMBER { push(:lit, val[0].to_i) } 
@@ -114,9 +121,9 @@ number : INTNUMBER { push(:lit, val[0].to_i) }
 ;
 
 
-prefixexp : var { v=pop(:var); push(:prefixexp,v)  } 
-| functioncall { t "PREFIXEXP-FUNCTIONCALL " }
-| '(' exp ')' { t "PAREN-EXP " } 
+prefixexp : var { ep"pfexp-var "; v=pop(:var); push(:prefixexp,v)  } 
+| functioncall { ep "pfexp-funcall "; c=pop(:call), push(:prefixexp,c) }
+| '(' exp ')' { ep"pfexp-paren-exp "; e=pop(:exp); push(:prefixexp,e) }                                 
 ;
 
 functioncall : prefixexp args { a=pop(:args); pe=pop(:prefixexp); push(:call, pe,a) }
@@ -126,7 +133,7 @@ functioncall : prefixexp args { a=pop(:args); pe=pop(:prefixexp); push(:call, pe
 args : '(' explist1 ')' { push(:args, [:explist]+mpoprev(:exp)) }
 | '(' ')' { push( :args ) }
 | tableconstructor { t "ARGS-tableconstructor " }
-| STRING { t "ARGS-STRING=#{val[0]} " }
+| STRING { ep"args-str "; push(:args,[:str, "\"#{val[0]}\""] ) }
 ;
 
 tableconstructor : '{' fieldlist '}' { t "TABLECONSTRUCTOR " }
@@ -174,8 +181,8 @@ unop : MINUS { push(:op, :minus ) }
 
 
 
-
 end
+
 
 
 ---- header = header.rb
