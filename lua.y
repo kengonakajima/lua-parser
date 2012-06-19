@@ -161,8 +161,8 @@ args : '(' explist1 ')' { push(:args, [:explist]+mpoprev(:exp)) }
 | STRING { ep"args-str "; push(:args,[:str, "\"#{val[0]}\""] ) }
 ;
 
-tableconstructor : '{' fieldlist '}' { ep"tblcons "; fl=pop(:fieldlist); push(:tcons, fl) }
-| '{' fieldlist fieldsep '}' { t "TABLECONSTRUCTOR-2 " }
+tableconstructor : '{' fieldlist '}' { ep"tcons "; fl=pop(:fieldlist); push(:tcons,fl) }
+| '{' fieldlist fieldsep '}' { ep"tcons-lastsep "; fl=pop(:fieldlist); push(:tcons,fl) }
 ;
 
 fieldlist : { ep"fl-empty "; push(:fieldlist) }
