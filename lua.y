@@ -113,8 +113,8 @@ namelist : name { ep"nl-first "; nm=pop(:name); push(:namelist, nm ) }
 | namelist ',' name { ep "nl-append "; nm=pop(:name); nl=pop(:namelist); nl.push(nm); push(*nl) }
 ;
 
-varlist1 : var { t "VARLIST1-VAR " }
-| varlist1 ',' var { t "varlist1-varlist1-var " }
+varlist1 : var { ep"vl-first " }
+| varlist1 ',' var { ep"vl-append " }
 ;
 
 var : name  { nm=pop(:name); push( :var, nm ) }
@@ -134,7 +134,7 @@ exp : NIL { push(:exp,[:nil]) }
 | DOTDOTDOT { t "EXP-DOTDOTDOT " }
 | function { t "EXP-FUNCTION " }
 | prefixexp { ep"exp-pfexp "; push(:exp,pop(:prefixexp)) }
-| tableconstructor { t "EXP-TABLECONSTRUCTOR " }
+| tableconstructor { ep"exp-tcons "; tc=pop(:tcons); push(:exp,tc) }
 | exp binop exp { ep("EXP-BINOP-EXP"); e1=pop(:exp); op=pop(:op); e2=pop(:exp); push(:exp, [:binop, e2,op,e1] ) }
 | unop exp { e=pop(:exp); op=pop(:op); push(:exp, [:unop, e, op] ) }
 ;
@@ -161,22 +161,22 @@ args : '(' explist1 ')' { push(:args, [:explist]+mpoprev(:exp)) }
 | STRING { ep"args-str "; push(:args,[:str, "\"#{val[0]}\""] ) }
 ;
 
-tableconstructor : '{' fieldlist '}' { t "TABLECONSTRUCTOR " }
+tableconstructor : '{' fieldlist '}' { ep"tblcons "; fl=pop(:fieldlist); push(:tcons, fl) }
 | '{' fieldlist fieldsep '}' { t "TABLECONSTRUCTOR-2 " }
 ;
 
-fieldlist : { t "FIELDLIST-empty " }
-| field  { t "FIELDLIST-field " }
-| fieldlist fieldsep field { t "FIELDLIST-fieldsep-field " }
+fieldlist : { ep"fl-empty "; push(:fieldlist) }
+| field  { ep"fl-first "; f=pop(:field); push(:fieldlist, f) }
+| fieldlist fieldsep field { ep"fl-append "; f=pop(:field); fl=pop(:fieldlist); fl.push(f); push(*fl) }
 ;
 
-fieldsep : ',' { t "FIELDSEP-COMMA " }
-| ';' { t "FIELDSEP-SEMICOLLON " }
+fieldsep : ',' { ep"fsep-, " }
+| ';' { ep"fsep-; " }
 ;
 
-field :  '[' exp ']' '=' exp  { t "FIELD-[exp]=exp " }
-| NAME '=' exp { t "FIELD-NAME=exp(#{val[0]}) " }
-| exp { t "FIELD-exp " }
+field :  '[' exp ']' '=' exp  { ep"fld-expset ";  val=pop(:exp); ind=pop(:exp); push(:field, ind, val ) }
+| NAME '=' exp { ep"fld-nameset "; e=pop(:exp); push(:field, [:name,val[0].to_sym], e ) }
+| exp { ep"fld-exp "; e=pop(:exp); push(:field,nil,e) }
 ;
 
 name : NAME { ep"name-first=#{val[0]} "; push( :name, val[0].to_sym) }

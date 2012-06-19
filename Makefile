@@ -8,7 +8,7 @@ $(OUT):  lua.y inner.rb footer.rb
 
 
 s: $(OUT)
-		ruby $(OUT) -s test/table1.lua
+
 
 		ruby $(OUT) -s t.lua
 
@@ -31,7 +31,7 @@ s: $(OUT)
 		ruby $(OUT) -s test/func2.lua
 		ruby $(OUT) -s test/unops.lua
 		ruby $(OUT) -s test/dot3.lua
-
+		ruby $(OUT) -s test/table1.lua
 
 #		ruby $(OUT) -s test/long.lua
 

@@ -1,3 +1,14 @@
+q={ [1]=8, ["aaa"]=99,1,2 }
+
+a={b=1,c=2}
+
+b={1,2}
+c={1}
+d={}
+
+
+
+--[[
 function noarg()
 end
 function hoge(a)
@@ -7,6 +18,7 @@ end
 function hoge(a,b,c)
   return 2
 end
+--]]
 --function piyo(a,b)
 --  return a
 --end
