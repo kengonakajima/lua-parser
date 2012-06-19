@@ -19,7 +19,7 @@ statlist1: stat { t "sl1-first " }
 | statlist1 stat { t "sl1-append " }
 ;
 
-stat : varlist1 '=' explist1 semi { ep"st-asign "; el=pop(:explist); vl=mpoprev(:var); push( :asign,[:varlist]+vl,el) } 
+stat : varlist1 '=' explist1 semi { ep"st-asign "; el=pop(:explist); vl=pop(:varlist); push( :asign,vl,el) } 
 | functioncall  { ep"st-funcall "; push( *pop(:call)) }
 | DO block END  { ep"st-do "; b=pop(:block); push(:do,b) }
 | WHILE exp DO block END { ep"st-while "; b=pop(:block); e=pop(:exp); push( :while,e,b) }
@@ -86,8 +86,8 @@ namelist : name { ep"nl-first "; nm=pop(:name); push(:namelist, nm ) }
 | namelist ',' name { ep "nl-append "; nm=pop(:name); nl=pop(:namelist); nl.push(nm); push(*nl) }
 ;
 
-varlist1 : var { ep"vl-first " }
-| varlist1 ',' var { ep"vl-append " }
+varlist1 : var { ep"vl-first "; v=pop(:var); push(:varlist,v) }
+| varlist1 ',' var { ep"vl-append "; v=pop(:var); vl=pop(:varlist); vl.push(v); push(*vl) }
 ;
 
 var : name  { nm=pop(:name); push( :var, nm ) }
@@ -124,8 +124,8 @@ prefixexp : var { ep"pfexp-var "; v=pop(:var); push(:prefixexp,v)  }
 | '(' exp ')' { ep"pfexp-paren-exp "; e=pop(:exp); push(:prefixexp,e) }                                 
 ;
 
-functioncall : prefixexp args { a=pop(:args); pe=pop(:prefixexp); push(:call, pe,a) }
-| prefixexp ':' NAME args { t "FUNCTIONCALL-prefixexp-colon-name-args=#{val[0]} "}
+functioncall : prefixexp args { ep"fcall "; a=pop(:args); pe=pop(:prefixexp); push(:call, pe,nil,a) }
+| prefixexp ':' NAME args { ep"fcall-named "; a=pop(:args); pe=pop(:prefixexp); push(:call,pe,[:name,val[0].to_sym],a) }
 ;
 
 args : '(' explist1 ')' { push(:args, pop(:explist)) }

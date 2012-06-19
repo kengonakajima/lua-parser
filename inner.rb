@@ -10,10 +10,10 @@ def initialize()
 end
 
 def ep(*args)
-  STDERR.print(*args)
+#  STDERR.print(*args)
 end
 def lep(*args)
-  STDERR.print(*args)
+#  STDERR.print(*args)
 end
 
 def t(s)
@@ -76,28 +76,6 @@ def mpopstat()
   end
   if out.size==0 then
     ep "mpopstat: output is empty : \n"
-    pp @stack
-    raise "FATAL"
-  end
-  return out.reverse
-end
-
-# get multiple node with the 
-def mpoprev(sym)
-  out=[]
-  while true
-    top = @stack.pop
-    break if !top
-    if top[0] == sym then 
-#      ep "FOUND on top:#{top[0]}\n"
-      out.push(top)
-    else
-      @stack.push(top)
-      break
-    end
-  end
-  if out.size == 0 then
-    ep "mpoprev: output is empty for '#{sym}'"
     pp @stack
     raise "FATAL"
   end
@@ -368,7 +346,7 @@ def parse(s,sout)
 
   do_parse
 
-  pp @stack
+  #pp @stack
 
   topary = @stack.pop
   if @stack.size > 0 then

@@ -1,7 +1,21 @@
-a,b=1,2
 
 
 
+function _G.dumpbytes(str)
+  local out={}
+
+  for i=1,#str do
+    insert(out, str:byte(i,i))
+  end
+  return table.concat(out," ")
+
+end
+
+
+--  a,b=1,2
+
+
+--[[
 if 1 then
   return 1
 end
@@ -12,6 +26,7 @@ function _G.b2i(b)
     return 1
   end
 end
+--]]
 
 --function a()
 --  return
