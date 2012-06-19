@@ -1,3 +1,6 @@
+  function t:getChar(x,y)
+    return self.data[int(y)][int(x)] 
+  end  
 
 
 

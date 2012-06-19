@@ -62,8 +62,8 @@ laststat : RETURN semi { ep"laststat-ret-noarg "; push(:return,nil) }
 ;
 
 
-funcname : name  { ep"funcname-name "; nm=pop(:name); push( :funcname, nm) }
-| name ':' NAME { ep"funcname-name-withcolon "; nm=pop(:name); push( :funcname, (nm[1].to_s+":"+val[2]).to_sym) }
+funcname : name  { ep"funcname-name "; nm=pop(:name); push( :funcname, nm, nil) }
+| name ':' NAME { ep"funcname-name-withcolon "; nm=pop(:name); push( :funcname, nm, val[2].to_sym) }
 ;
 
 
