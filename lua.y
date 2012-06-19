@@ -27,10 +27,10 @@ stat : varlist1 '=' explist1 semi { ep"st-asign "; el=mpoprev(:exp); vl=mpoprev(
 | FOR name '=' exp ',' exp DO block END
 | FOR name '=' exp ',' exp ',' exp DO block END
 | FOR namelist IN explist1 DO block END
-| FUNCTION funcname funcbody { b=pop(:funcbody);n=pop(:funcname); push(:function,n,b) }
-| LOCAL FUNCTION name funcbody { t "STAT-LOCAL-FUNCTION-NAME-FUNCBODY=#{val[0]} " }
-| LOCAL namelist
-| LOCAL namelist '=' explist1
+| FUNCTION funcname funcbody { ep"stat-funcdef "; b=pop(:funcbody);n=pop(:funcname); push(:function,n,b) }
+| LOCAL FUNCTION name funcbody { t "stat-localfunc "; b=pop(:funcbody);n=pop(:name); push(:deflocal, n, b) }
+| LOCAL namelist { ep"stat-local-def "; nl=pop(:namelist); push(:deflocal,nl,nil) }
+| LOCAL namelist '=' explist1 { ep"stat-local-init "; el=mpoprev(:exp); nl=pop(:namelist); push(:deflocal,nl,[:explist]+el) }
 | ifstat { push(*pop(:if)) }
 ;
 
@@ -94,7 +94,7 @@ funcname : name  { nm=pop(:name); push( :funcname, nm) }
 ;
 
 
-function : FUNCTION funcbody { t "FUNCTION-funcbody " }
+function : FUNCTION funcbody { ep"func "; b=pop(:funcbody); push(:function,b) }
 ;
 
 funcbody : '(' parlist1 ')' block END { ep"fb-prms "; b=pop(:block); pl=pop(:parlist); push( :funcbody, pl,b ) }
@@ -132,7 +132,7 @@ exp : NIL { push(:exp,[:nil]) }
 | number { push( :exp, pop()) }
 | STRING { push( :exp, [:str, "\"#{val[0]}\""] ) } 
 | DOTDOTDOT { ep"exp-vararg "; push( :exp, [:vararg]) }
-| function { t "EXP-FUNCTION " }
+| function { ep"exp-func "; f=pop(:function); push(:exp,f) }
 | prefixexp { ep"exp-pfexp "; push(:exp,pop(:prefixexp)) }
 | tableconstructor { ep"exp-tcons "; tc=pop(:tcons); push(:exp,tc) }
 | exp binop exp { ep("EXP-BINOP-EXP"); e1=pop(:exp); op=pop(:op); e2=pop(:exp); push(:exp, [:binop, e2,op,e1] ) }

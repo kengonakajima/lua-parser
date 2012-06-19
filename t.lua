@@ -1,6 +1,25 @@
-function a(...)
-  t={...}
+local a = function() end
+
+local function x()
 end
+function a()
+  local a
+  local b=2
+  local c,d=3,4
+end
+
+local e={}
+local c,d=3,4
+local b=2
+local a
+--[[
+
+local a = function() end
+--]]
+
+--function a(...)
+--  t={...}
+--end
 
 --t={10,20;30,}
 --q={ [1]=8, ["aaa"]=99,1,2 }

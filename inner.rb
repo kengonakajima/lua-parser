@@ -62,7 +62,7 @@ end
 def mpopstat()
   ep "mpopstat(stacklen=#{@stack.size}}):"
   out=[]
-  syms= { :if => true, :asign=>true, :function=>true, :call=>true }
+  syms= { :if => true, :asign=>true, :function=>true, :call=>true, :deflocal=>true }
   while true
     top = @stack.pop
     break if !top
@@ -75,7 +75,9 @@ def mpopstat()
     end
   end
   if out.size==0 then
-    raise "mpopstat: output is empty"
+    ep "mpopstat: output is empty : \n"
+    pp @stack
+    raise "FATAL"
   end
   return out.reverse
 end
@@ -95,7 +97,9 @@ def mpoprev(sym)
     end
   end
   if out.size == 0 then
-    raise "mpoprev: output is empty for '#{sym}'"
+    ep "mpoprev: output is empty for '#{sym}'"
+    pp @stack
+    raise "FATAL"
   end
   return out.reverse
 end
