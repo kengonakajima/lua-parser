@@ -31,6 +31,7 @@ s: $(OUT)
 	ruby $(OUT) -s test/dot3.lua
 	ruby $(OUT) -s test/table1.lua
 	ruby $(OUT) -s test/table2.lua
+	ruby $(OUT) -s test/dot3f.lua
 
 #	ruby $(OUT) -s test/long.lua
 
@@ -49,7 +50,7 @@ s: $(OUT)
 #	ruby $(OUT) -s test/lstr.lua
 #	ruby $(OUT) -s test/nstr.lua
 
-#	ruby $(OUT) -s test/dot3f.lua
+
 
 #	ruby $(OUT) -s test/lumino.lua
 

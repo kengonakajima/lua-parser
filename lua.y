@@ -131,7 +131,7 @@ exp : NIL { push(:exp,[:nil]) }
 | TRUE { push(:exp, [:true]) }
 | number { push( :exp, pop()) }
 | STRING { push( :exp, [:str, "\"#{val[0]}\""] ) } 
-| DOTDOTDOT { t "EXP-DOTDOTDOT " }
+| DOTDOTDOT { ep"exp-vararg "; push( :exp, [:vararg]) }
 | function { t "EXP-FUNCTION " }
 | prefixexp { ep"exp-pfexp "; push(:exp,pop(:prefixexp)) }
 | tableconstructor { ep"exp-tcons "; tc=pop(:tcons); push(:exp,tc) }
