@@ -1,3 +1,41 @@
+function noarg()
+end
+
+--[[
+if 1 then
+--  f()
+elseif 2 then
+elseif 3 then
+--  g()
+--elseif 3 then
+--elseif 5 then
+
+--  h()
+else
+  i()
+--  i()
+end
+--]]
+
+
+--[[
+if a==nil then
+  f()
+else
+ g()
+end
+--]]
+--a.b=1
+
+--[[
+function hoge(a,b,c)
+  return 2
+end
+function piyo(a,b)
+  return a
+end
+--]]
+
 
 --[[
 out=a~=2

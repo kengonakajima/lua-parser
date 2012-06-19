@@ -6,6 +6,32 @@ def showit(s)
   print "#{s} \n          ", @p.parse(s),"\n" 
 end
 
+showit( <<EOF
+if 1 then 
+  "A"
+else
+  if 2 then
+    "B"
+  end
+  "C"
+end
+EOF
+)
+showit( <<EOF
+if 1 then
+  "A"
+elsif 2 then
+  "B"
+elsif 3 then
+  "C"
+else
+  "D"
+end
+EOF
+)
+
+
+showit( "a.b.c.d")
 showit( "a=nil")
 showit( "a=1\nb=2\nif false then end\nx=1")
 showit( "if a then b() end")

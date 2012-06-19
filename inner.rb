@@ -21,25 +21,15 @@ def t(s)
   @tested[s] += 1
 end
 
-
-# expand 1 depth
-def pushflat(*args)
-  topush=[]
-  args.each do |arg|
-    if typeof(arg)==Array then
-      arg.each do |e| topush.push(e) end
-    else
-      topush.push(arg)
-    end
-  end
-  push(*topush)
-end
-
 def push(*args)
   raise "push: cannot push empty array" if args.size == 0
   raise "push: first element must be a symbol" if typeof(args[0]) != Symbol
 #  ep "(#{args.join(':')}) "
-  ep "(#{args[0]}) "
+  if args[0] == :lit then
+    ep "(#{args[0]}=#{args[1]}) "
+  else
+    ep "(#{args[0]}) "
+  end
   @stack.push(args)
 end
 
@@ -55,6 +45,16 @@ def pop(*args)
     raise "pop: found invlalid sym '#{top[0]}'(#{typeof(top[0])}) expected:#{sym}"
   else
     return top
+  end
+end
+
+# get return or break
+def poplaststat()
+  top = @stack.pop()
+  if top and top[0] == :break or top[0] == :return then
+    return top
+  else
+    raise "poplaststat: not found!"
   end
 end
 
@@ -77,7 +77,7 @@ def mpopstat()
   if out.size==0 then
     raise "mpopstat: output is empty"
   end
-  return out
+  return out.reverse
 end
 
 # get multiple node with the 
@@ -101,11 +101,31 @@ def mpoprev(sym)
   return out.reverse
 end
 
+# go through block and find last else placeholder
+def findlastelse(blk)
+#  pp "FFFFFFFFFFFFFFFFFF: findlastelse:", blk
+  curblk = blk
+  depth=0
+  while true
+    nextif = curblk[1]
+    nextelse = nextif[3]
+    if nextelse == nil then
+      return nextif
+    else
+      depth+=1
+      curblk = nextelse
+    end
+  end
+  raise "should never reached"
+end
+
+
 def next_token
   @q.shift
 end
 
 def on_error(t,v,values)
+  pp @stack
   raise "ERROR: t:#{t} v:#{v} values:#{values}\n"
 end
 
@@ -255,9 +275,9 @@ def parse(s,sout)
     case s
     when /\A\s+/      
     when /\A--\[\[.*?\]\]/m
-      lep "LCOMMENT:-- "
+#      lep "LCOMMENT:-- " 
     when /\A--(.*)$/
-      lep "COMMENT:-- "
+#      lep "COMMENT:-- "
     when /\A(\d+\.\d+[eE][+\-]\d+)/
       lep "EXPNUM2:#{$&} "
       @q.push([ :EXPNUMBER, $& ])
@@ -273,20 +293,15 @@ def parse(s,sout)
     when /\A\d+/
       lep "NUM:#{$&} "
       @q.push([ :INTNUMBER, $& ])
-    when /\A([a-zA-Z_]([a-zA-Z_0-9]+[a-zA-Z_0-9.])*)/
+    when /\A([a-zA-Z_][a-zA-Z_0-9]*)/
       ss = $&
       
       if kwh[ss] then
         lep "KW:#{ss} " 
         @q.push([ kwh[ss],ss])
       else
-        if ss.include?( "." ) then
-          lep "NWD:#{ss} " 
-          @q.push([ :NAMEWIDHDOTS, ss ])
-        else
-          lep "N:#{ss} " 
-          @q.push([ :NAME, ss ])
-        end
+        lep "N:#{ss} " 
+        @q.push([ :NAME, ss ])
       end
     when /\A\.\.\./
       lep "W:... " 

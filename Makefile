@@ -8,14 +8,28 @@ $(OUT):  lua.y inner.rb footer.rb
 
 
 s: $(OUT)
-#		ruby $(OUT) -s test/num.lua # done
-#		ruby $(OUT) -s test/ifthen.lua # done
-#		ruby $(OUT) -s test/elseif.lua # done
-#		ruby $(OUT) -s test/var.lua	# done
-#		ruby $(OUT) -s test/mlstr.lua  # done
-#		ruby $(OUT) -s test/bool.lua   # done
-#		ruby $(OUT) -s test/ops.lua
+
 		ruby $(OUT) -s t.lua
+
+		echo
+		echo
+		echo
+
+		ruby $(OUT) -s test/elseif.lua # done
+		ruby $(OUT) -s test/ifthen.lua # done
+		ruby $(OUT) -s test/num.lua # done
+		ruby $(OUT) -s test/var.lua	# done
+		ruby $(OUT) -s test/mlstr.lua  # done
+		ruby $(OUT) -s test/bool.lua   # done
+		ruby $(OUT) -s test/ops.lua # done
+		ruby $(OUT) -s test/semi.lua # done
+		ruby $(OUT) -s test/ret.lua # done
+		ruby $(OUT) -s test/mini.lua # done
+		ruby $(OUT) -s test/empty.lua # done
+		ruby $(OUT) -s test/func.lua  #done
+		ruby $(OUT) -s test/func2.lua
+
+
 
 
 #		ruby $(OUT) -s test/long.lua
@@ -47,13 +61,13 @@ s: $(OUT)
 # 		ruby $(OUT) -s test/table2.lua
 # 		ruby $(OUT) -s test/table1.lua
 # 		ruby $(OUT) -s test/dot3.lua
-# 		ruby $(OUT) -s test/func2.lua
-# 		ruby $(OUT) -s test/func.lua
 
-# 		ruby $(OUT) -s test/empty.lua
-# 		ruby $(OUT) -s test/mini.lua
-# 		ruby $(OUT) -s test/ret.lua
-# 		ruby $(OUT) -s test/semi.lua
+
+
+
+
+
+
 
 # 		ruby $(OUT) -s test/lumino.lua
 
