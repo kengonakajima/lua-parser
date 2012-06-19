@@ -355,7 +355,7 @@ def parse(s,sout)
     raise "FATAL"
   end
 
-  STDERR.print ary2s(topary),"\n"
+  print ary2s(topary),"\n"
 
 
 end

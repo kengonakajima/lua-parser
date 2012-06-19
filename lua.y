@@ -153,7 +153,7 @@ field :  '[' exp ']' '=' exp  { ep"fld-expset ";  val=pop(:exp); ind=pop(:exp); 
 ;
 
 name : NAME { ep"name-first=#{val[0]} "; push( :name, val[0].to_sym) }
-| name '.' NAME { ep"name-dotappend=#{val[2]} "; nm=pop(:name); nnm=nm[1].to_s+"."+val[2]; push(:name,nnm.to_sym)}
+| name '.' NAME { ep"name-dotappend=#{val[2]} "; nm=pop(:name); nnm=val[2].to_sym; nm.push(nnm); push(*nm) }
 ;
 
 binop : PLUS { push(:op, :plus) }

@@ -48,6 +48,7 @@ s: $(OUT)
 	ruby $(OUT) -s test/long.lua
 	ruby $(OUT) -s test/lumino.lua
 
+r:
 
 clean:
 		rm $(TARGET)
