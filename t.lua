@@ -1,5 +1,24 @@
 function noarg()
 end
+function hoge(a)
+end
+function hoge(a,b)
+end
+function hoge(a,b,c)
+  return 2
+end
+--function piyo(a,b)
+--  return a
+--end
+
+
+
+--[[
+function noarg()
+end
+function a.b()
+end
+--]]
 
 --[[
 if 1 then

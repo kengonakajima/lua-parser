@@ -89,8 +89,8 @@ laststat : RETURN semi { t "LASTSTAT-RETURN " }
 ;
 
 
-funcname : name  { push( :funcname, val[0].to_sym) }
-| name ':' NAME{ push( :funcname, (val[0]+":"+val[2]).to_sym) }
+funcname : name  { nm=pop(:name); push( :funcname, nm) }
+| name ':' NAME{ nm=pop(:name); push( :funcname, (nm[1].to_s+":"+val[2]).to_sym) }
 ;
 
 
@@ -109,8 +109,8 @@ parlist1 :namelist { ep"pl1-nl "; nl=pop(:namelist); push(:parlist,nl) }
 | DOTDOTDOT { ep"pl1-vararg "; push(:parlist, [:vararg]) }
 ;
 
-namelist : name { ep"nl-first "; push(:namelist, val[0].to_sym ) }
-| namelist ',' name { ep "nl-append "; nl=pop(:namelist); nl.push(val[2].to_sym); push(*nl) }
+namelist : name { ep"nl-first "; nm=pop(:name); push(:namelist, nm ) }
+| namelist ',' name { ep "nl-append "; nm=pop(:name); nl=pop(:namelist); nl.push(nm); push(*nl) }
 ;
 
 varlist1 : var { t "VARLIST1-VAR " }

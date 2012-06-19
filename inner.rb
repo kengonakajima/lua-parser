@@ -69,7 +69,7 @@ def mpopstat()
     if syms[top[0]] then
       out.push(top)
     else
-      ep "[mpopstat:#{top[0]} is not found]"
+      ep "[mpopstat:#{top[0]} is not allowed as a statement]"
       @stack.push(top)
       break
     end
@@ -369,7 +369,9 @@ def parse(s,sout)
 
   topary = @stack.pop
   if @stack.size > 0 then
-    raise "stack mismatch! size:#{@stack.size}\n"
+    ep "stack mismatch! size:#{@stack.size} : \n"
+    pp @stack
+    raise "FATAL"
   end
 
   STDERR.print ary2s(topary),"\n"
