@@ -1,7 +1,16 @@
-do
-  do
-  end
+while true do
 end
+--while a==2 do
+--end
+--while true do
+--  function aho()
+--  end
+--end
+
+--do
+--  do
+--  end
+--end
 
 --[[
 local a = function() end

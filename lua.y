@@ -22,8 +22,8 @@ statlist1: stat { t "sl1-first " }
 stat : varlist1 '=' explist1 semi { ep"st-asign "; el=mpoprev(:exp); vl=mpoprev(:var); push( :asign,[:varlist]+vl,[:explist]+el) } 
 | functioncall  { ep"st-funcall "; push( *pop(:call)) }
 | DO block END  { ep"st-do "; b=pop(:block); push(:do,b) }
-| WHILE exp DO block END
-| REPEAT block UNTIL exp
+| WHILE exp DO block END { ep"st-while "; b=pop(:block); e=pop(:exp); push( :while,e,b) }
+| REPEAT block UNTIL exp { ep"st-repeat "; e=pop(:exp); b=pop(:block); push( :repeat,e,b) }
 | FOR name '=' exp ',' exp DO block END
 | FOR name '=' exp ',' exp ',' exp DO block END
 | FOR namelist IN explist1 DO block END
