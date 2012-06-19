@@ -1,5 +1,41 @@
-while true do
+a,b=1,2
+
+
+
+if 1 then
+  return 1
 end
+
+--function _G.b2i(b) if b then return 1 else return 0 end end
+function _G.b2i(b)
+  if 1 then
+    return 1
+  end
+end
+
+--function a()
+--  return
+--end
+
+
+
+
+--for a,b in pairs(a) do
+--  local c = {a,b}
+--end
+
+--[[
+for a=1,2 do
+  function aho()
+  end
+end
+for a=1,2,1 do
+  local a = {}
+end
+--]]
+
+--while true do
+--end
 --while a==2 do
 --end
 --while true do
@@ -176,7 +212,7 @@ end
 ]]--
 
 
---x0,y0,x1 = poly[1],poly[2],poly[3]
+
 
 --a.b=c.d
 --a.b=c

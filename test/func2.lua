@@ -5,4 +5,7 @@ function piyo(a,b)
   return a
 end
 
-  
+function a.b(q)
+end
+function a:b(q)
+end

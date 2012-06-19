@@ -8,7 +8,7 @@ $(OUT):  lua.y inner.rb footer.rb
 
 
 s: $(OUT)
-
+	ruby $(OUT) -s test/lumino.lua
 
 	ruby $(OUT) -s t.lua
 	echo
@@ -42,17 +42,9 @@ s: $(OUT)
 	ruby $(OUT) -s test/do.lua
 	ruby $(OUT) -s test/while.lua
 	ruby $(OUT) -s test/repeat.lua
-
-#	ruby $(OUT) -s test/long.lua
-
-#	ruby $(OUT) -s test/forin.lua
-#	ruby $(OUT) -s test/for.lua
-
-
-
-
-
-#	ruby $(OUT) -s test/lumino.lua
+	ruby $(OUT) -s test/for.lua
+	ruby $(OUT) -s test/forin.lua
+	ruby $(OUT) -s test/long.lua
 
 clean:
 		rm $(TARGET)

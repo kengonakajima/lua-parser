@@ -19,22 +19,22 @@ statlist1: stat { t "sl1-first " }
 | statlist1 stat { t "sl1-append " }
 ;
 
-stat : varlist1 '=' explist1 semi { ep"st-asign "; el=mpoprev(:exp); vl=mpoprev(:var); push( :asign,[:varlist]+vl,[:explist]+el) } 
+stat : varlist1 '=' explist1 semi { ep"st-asign "; el=pop(:explist); vl=mpoprev(:var); push( :asign,[:varlist]+vl,el) } 
 | functioncall  { ep"st-funcall "; push( *pop(:call)) }
 | DO block END  { ep"st-do "; b=pop(:block); push(:do,b) }
 | WHILE exp DO block END { ep"st-while "; b=pop(:block); e=pop(:exp); push( :while,e,b) }
 | REPEAT block UNTIL exp { ep"st-repeat "; e=pop(:exp); b=pop(:block); push( :repeat,e,b) }
-| FOR name '=' exp ',' exp DO block END
-| FOR name '=' exp ',' exp ',' exp DO block END
-| FOR namelist IN explist1 DO block END
+| FOR name '=' exp ',' exp DO block END { ep"st-for2 "; b=pop(:block); eend=pop(:exp); estart=pop(:exp); n=pop(:name); push(:for, n,estart,eend,nil,b) }
+| FOR name '=' exp ',' exp ',' exp DO block END { ep"st-for3 "; b=pop(:block); estep=pop(:exp); eend=pop(:exp); estart=pop(:exp); n=pop(:name); push(:for,n,estart,eend,estep,b) }
+| FOR namelist IN explist1 DO block END { ep"st-forin "; b=pop(:block); el=pop(:explist); nl=pop(:namelist); push(:forin,nl,el,b) }
 | FUNCTION funcname funcbody { ep"stat-funcdef "; b=pop(:funcbody);n=pop(:funcname); push(:function,n,b) }
 | LOCAL FUNCTION name funcbody { t "stat-localfunc "; b=pop(:funcbody);n=pop(:name); push(:deflocal, n, b) }
 | LOCAL namelist { ep"stat-local-def "; nl=pop(:namelist); push(:deflocal,nl,nil) }
-| LOCAL namelist '=' explist1 { ep"stat-local-init "; el=mpoprev(:exp); nl=pop(:namelist); push(:deflocal,nl,[:explist]+el) }
+| LOCAL namelist '=' explist1 { ep"stat-local-init "; el=pop(:explist); nl=pop(:namelist); push(:deflocal,nl,el) }
 | ifstat { push(*pop(:if)) }
 ;
 
-ifstat : IF exp THEN block END { ep"if-then-end ";  tru=pop(:block);e=pop(:exp); push(:if,e,tru,nil) }
+ifstat : IF exp THEN block END { ep"if-then-end ";  tru=pop(:block);e=pop(:exp); push(:if,e,tru,nil);  }
 | IF exp THEN block ELSE block END { ep"if-then-else-end "; fal=pop(:block); tru=pop(:block); e=pop(:exp); push(:if,e,tru,fal); }
 | IF exp THEN block elseifblock { ep"if-then-elseif ";
     fal=pop(:block);
@@ -50,47 +50,20 @@ elseifpart : ELSEIF exp THEN block { ep"elseifpart-first "; tru=pop(:block); e=p
 | elseifpart ELSEIF exp THEN block { ep"elseifpart-append "; tru=pop(:block); e=pop(:exp); prevbl=pop(:block); previf=findlastelse(prevbl); previf[3]=[:block,[:if,e,tru,nil]]; push(*prevbl) }  
 ;
 
-#ifstat : IF exp THEN block END { ep"if-then-end "; tru=pop(:block);e=pop(:exp); push(:if,e,tru,nil) }
-#| IF exp THEN block ELSE block END { ep"if-then-else-end "; fal=pop(:block);tru=pop(:block);e=pop(:exp); push(:if,e,tru,fal) }
-#| IF exp THEN block elseifstat END { ep"if-then-elseif-end "; elif=pop(:block); tru=pop(:block);e=pop(:exp); push(:if,e,tru,elif) }
-#| IF exp THEN block elseifstat ELSE block END {
-#    ep"if-then-elseif-else-end ";
-#    fal=pop(:block);
-#    elif=pop(:block);
-#    tru=pop(:block);
-#    e=pop(:exp);
-#    pp elif
-#}
-#;
-#elseifstat : ELSEIF exp THEN block { ep"elseif-then "; tru=pop(:block);e=pop(:exp); push(:block, [:if,e,tru,nil]) }
-#| ELSEIF exp THEN block ELSE block { ep"elseif-then-else "; fal=pop(:block);tru=pop(:block); e=pop(:exp); push(:block,[:if,e,tru,fal]) }
-#| elseifstat ELSEIF exp THEN block {
-#    ep"elseif-elseif-then ";
-#    tru=pop(:block);e=pop(:exp); elif=pop(:block);
-#    pp elif
-#    elif_if = elif[1];
-#    push(:block,[:if,elif_if[1],elif_if[2], [:block, [:if, e,tru,nil]]])
-#        }
-#| elseifstat ELSEIF exp then block ELSE block END {
-#    ep"elseif-elseif-then-else ";
-#}
-#;
-#elsestat : ELSE block { t "ELSESTAT-ELSE-BLOCK " }
-#;
 
 semi :   #{ t "SEMI-EMPTYEOL " }
 | ';' #{  t "SEMI-SEMICOLON " }
 ;
 
 
-laststat : RETURN semi { t "LASTSTAT-RETURN " }
-| RETURN explist1 semi { el=mpoprev(:exp); ep("#EL:",el.size,"\n"); push(:return, [:explist]+el ) } 
-| BREAK semi { t "LASTSTAT-BREAK " }
+laststat : RETURN semi { ep"laststat-ret-noarg "; push(:return,nil) }
+| RETURN explist1 semi { ep"laststat-ret-exp "; el=pop(:explist);  ep("ELSIZE:",el.size) ; push(:return, el) } 
+| BREAK semi { ep"laststat-break "; push(:break) }
 ;
 
 
-funcname : name  { nm=pop(:name); push( :funcname, nm) }
-| name ':' NAME{ nm=pop(:name); push( :funcname, (nm[1].to_s+":"+val[2]).to_sym) }
+funcname : name  { ep"funcname-name "; nm=pop(:name); push( :funcname, nm) }
+| name ':' NAME { ep"funcname-name-withcolon "; nm=pop(:name); push( :funcname, (nm[1].to_s+":"+val[2]).to_sym) }
 ;
 
 
@@ -98,7 +71,7 @@ function : FUNCTION funcbody { ep"func "; b=pop(:funcbody); push(:function,b) }
 ;
 
 funcbody : '(' parlist1 ')' block END { ep"fb-prms "; b=pop(:block); pl=pop(:parlist); push( :funcbody, pl,b ) }
-| '(' ')' block END { ep"fb-noprms "; push( :funcbody, pop(:block)) }
+| '(' ')' block END { ep"fb-noprms "; push( :funcbody, nil, pop(:block)) }
 ;
 
 block : chunk { push(:block, pop(:chunk)) }
@@ -122,8 +95,8 @@ var : name  { nm=pop(:name); push( :var, nm ) }
 | prefixexp '.' NAME { pe=pop(:prefixexp); push(:var, [:tblget,pe,[:var,val[0].to_sym]]) }
 ;
 
-explist1 : exp { t( "EXPLIST1 ") }
-| explist1 ',' exp  { t "EXPLIST1-exp " }
+explist1 : exp { ep"el-first "; e=pop(:exp); push(:explist, e) }
+| explist1 ',' exp  { ep"el-append "; e=pop(:exp); el=pop(:explist); el.push(e); push(*el)}
 ;
 
 exp : NIL { push(:exp,[:nil]) }
@@ -155,7 +128,7 @@ functioncall : prefixexp args { a=pop(:args); pe=pop(:prefixexp); push(:call, pe
 | prefixexp ':' NAME args { t "FUNCTIONCALL-prefixexp-colon-name-args=#{val[0]} "}
 ;
 
-args : '(' explist1 ')' { push(:args, [:explist]+mpoprev(:exp)) }
+args : '(' explist1 ')' { push(:args, pop(:explist)) }
 | '(' ')' { push( :args ) }
 | tableconstructor { t "ARGS-tableconstructor " }
 | STRING { ep"args-str "; push(:args,[:str, "\"#{val[0]}\""] ) }
