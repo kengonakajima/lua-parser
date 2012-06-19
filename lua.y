@@ -105,7 +105,7 @@ block : chunk { push(:block, pop(:chunk)) }
 ;
 
 parlist1 :namelist { ep"pl1-nl "; nl=pop(:namelist); push(:parlist,nl) }
-| namelist ',' DOTDOTDOT { ep "pl1-nl-vararg "; nl=pop(:namelist); push(:parlist, nl) }
+| namelist ',' DOTDOTDOT { ep "pl1-nl-vararg "; nl=pop(:namelist); nl.push([:vararg]); push(:parlist, nl) }
 | DOTDOTDOT { ep"pl1-vararg "; push(:parlist, [:vararg]) }
 ;
 

@@ -82,7 +82,6 @@ end
 
 # get multiple node with the 
 def mpoprev(sym)
-  ep "mpop(#{sym}):\n"
   out=[]
   while true
     top = @stack.pop
