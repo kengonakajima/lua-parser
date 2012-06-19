@@ -39,6 +39,7 @@ s: $(OUT)
 	ruby $(OUT) -s test/comment.lua
 	ruby $(OUT) -s test/lcomment.lua
 	ruby $(OUT) -s test/local.lua
+	ruby $(OUT) -s test/do.lua
 
 #	ruby $(OUT) -s test/long.lua
 
@@ -46,7 +47,7 @@ s: $(OUT)
 #	ruby $(OUT) -s test/for.lua
 #	ruby $(OUT) -s test/repeat.lua
 #	ruby $(OUT) -s test/while.lua
-#	ruby $(OUT) -s test/do.lua
+
 
 
 #	ruby $(OUT) -s test/lumino.lua

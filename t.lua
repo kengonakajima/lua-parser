@@ -1,3 +1,9 @@
+do
+  do
+  end
+end
+
+--[[
 local a = function() end
 
 local function x()
@@ -12,6 +18,8 @@ local e={}
 local c,d=3,4
 local b=2
 local a
+--]]
+
 --[[
 
 local a = function() end

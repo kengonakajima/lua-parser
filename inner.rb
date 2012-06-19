@@ -62,7 +62,7 @@ end
 def mpopstat()
   ep "mpopstat(stacklen=#{@stack.size}}):"
   out=[]
-  syms= { :if => true, :asign=>true, :function=>true, :call=>true, :deflocal=>true }
+  syms= { :if => true, :asign=>true, :function=>true, :call=>true, :deflocal=>true, :do=>true }
   while true
     top = @stack.pop
     break if !top
