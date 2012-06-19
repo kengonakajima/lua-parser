@@ -1,10 +1,36 @@
+if a==nil then
+--  f()
+elseif b==2 then
+--  g()
+--elseif c==3 then
+--  h()
+--else
+--  i()
+end
+
+--[[
+if a==nil then
+  f()
+else
+  g()
+end
+--]]
+
+--function a()
+--  return 2
+--end
+
+--[[
 if a then
 elseif b then
+  if e then
+  end
+  
 elseif c then
   if d then
   end  
 end
-
+]]--
 
 
 --x0,y0,x1 = poly[1],poly[2],poly[3]
@@ -23,9 +49,7 @@ if a[1] then
 end
 --]]
 
---function a()
---  return 2
---end
+
 
 --a()
 --a(1,2)

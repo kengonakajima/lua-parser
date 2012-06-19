@@ -2,62 +2,42 @@ class Lua
 
 rule
 
-chunk :   { push( :chunk ) }
-| statlist1 { sl= mpoprev(:stat); push( :chunk,[:statlist]+sl,nil ) }
-| statlist1 laststat { ls=pop(:laststat); sl=mpoprev(:stat); push(:chunk, [:statlist]+sl,ls) }
-| laststat { ls=pop(:laststat); push(:chunk,nil,ls) }
+chunk :   { ep("SL0"); push( :chunk ) }
+| statlist1 { ep("SL1"); sl= mpopstat(); pushflat( :chunk, sl ) }
+| statlist1 laststat { ep("SLL"); ls=pop(:laststat); sl=mpopstat(); ary=[:chunk]+sl; ary.push(ls); push(*ary) }
+| laststat { ep("LS"); ls=pop(:laststat); pushflat(:chunk,ls) }
 ;
 
-statlist1: stat { t "STATLIST1-STAT=#{@sout} " }
+statlist1: stat { t "STATLIST1-STAT " }
 | statlist1 stat { t "STATLIST1-STATLIST1-STAT " }
 ;
 
-stat : varlist1 '=' explist1 semi { el=mpoprev(:exp); vl=mpoprev(:var); push( :stat,[:asign,[:varlist]+vl,[:explist]+el]) } # order is important!
-| functioncall  { push( :stat, pop(:call)) }
+stat : varlist1 '=' explist1 semi { el=mpoprev(:exp); vl=mpoprev(:var); push( :asign,[:varlist]+vl,[:explist]+el) } 
+| functioncall  { push( *pop(:call)) }
 | DO block END  { t "STAT-do-block-end " }
 | WHILE exp DO block END
 | REPEAT block UNTIL exp
 | FOR NAME '=' exp ',' exp DO block END
 | FOR NAME '=' exp ',' exp ',' exp DO block END
 | FOR namelist IN explist1 DO block END
-| FUNCTION funcname funcbody { b=pop(:funcbody);n=pop(:funcname); push(:stat,[:function,n,b]) }
+| FUNCTION funcname funcbody { b=pop(:funcbody);n=pop(:funcname); push(:function,n,b) }
 | LOCAL FUNCTION NAME funcbody { t "STAT-LOCAL-FUNCTION-NAME-FUNCBODY=#{val[0]} " }
 | LOCAL namelist
 | LOCAL namelist '=' explist1
-| ifstat { push(:stat,pop(:if)) }
+| ifstat { push(*pop(:if)) }
 ;
 
-ifstat : IF exp THEN block END { ep("AA"); tru=pop(:block);e=pop(:exp); push(:if,e,tru,nil) }
-| IF exp THEN block ELSE block END { ep("BB"); fal=pop(:block);tru=pop(:block);e=pop(:exp); push(:if,e,tru,fal) }
-| IF exp THEN block elseifstat END { ep("CC"); elif=pop(:block); tru=pop(:block);e=pop(:exp); push(:if,e,tru,elif) }
+ifstat : IF exp THEN block END { tru=pop(:block);e=pop(:exp); push(:if,e,tru,nil) }
+| IF exp THEN block ELSE block END { fal=pop(:block);tru=pop(:block);e=pop(:exp); push(:if,e,tru,fal) }
+| IF exp THEN block elseifstat END { elif=pop(:block); tru=pop(:block);e=pop(:exp); push(:if,e,tru,elif) }
 ;
-elseifstat : ELSEIF exp THEN block { ep("ELAA"); tru=pop(:block);e=pop(:exp); push(:block, [:if,e,tru,nil]) }
-| ELSEIF exp THEN block ELSE block { ep("ELBB"); fal=pop(:block);tru=pop(:block); e=pop(:exp); push(:block,[:if,e,tru,fal]) }
+elseifstat : ELSEIF exp THEN block { tru=pop(:block);e=pop(:exp); push(:block, [:if,e,tru,nil]) }
+| ELSEIF exp THEN block ELSE block { fal=pop(:block);tru=pop(:block); e=pop(:exp); push(:block,[:if,e,tru,fal]) }
 | elseifstat ELSEIF exp THEN block {
-    ep("ELCC\n");
     tru=pop(:block);e=pop(:exp); elif=pop(:block); 
-    pp elif;
-    pp tru;
     elif_if = elif[1];
-    pp elif_if;
     push(:block,[:if,elif_if[1],elif_if[2], [:block, [:if, e,tru,nil]]])
-
-#     [:if,                                   if a
-#      [:exp, [:prefixexp, [:var, :a]]],   
-#      [:block, [:chunk]],               then
-#      [:stat,                              else
-#       [:block, 
-#        [:if,                                   if 
-#         [:if, [:exp, [:prefixexp, [:var, :b]]], [:block, [:chunk]], nil], 
-#         nil, 
-#         [:block, 
-#          [:if, 
-#           [:exp, [:prefixexp, [:var, :c]]], 
-#           [:block, [:chunk]], 
-#           nil]]]]]]]], 
-        
-    
-    ep("ELCCEND\n") }
+        }
 ;
 
 #elsestat : ELSE block { t "ELSESTAT-ELSE-BLOCK " }
@@ -114,7 +94,7 @@ explist1 : exp { t( "EXPLIST1 ") }
 | explist1 ',' exp  { t "EXPLIST1-exp " }
 ;
 
-exp : NIL { t "EXP-NIL " }
+exp : NIL { push(:exp,[:nil]) }
 | FALSE { t "EXP-FALSE " }
 | TRUE { t "EXP-TRUE " }
 | number { push( :exp, pop()) }
@@ -123,7 +103,7 @@ exp : NIL { t "EXP-NIL " }
 | function { t "EXP-FUNCTION " }
 | prefixexp { push(:exp,pop(:prefixexp)) }
 | tableconstructor { t "EXP-TABLECONSTRUCTOR " }
-| exp binop exp { t "EXP-EXP-BINOP-EXP " }
+| exp binop exp { ep("EXP-BINOP-EXP"); e1=pop(:exp); op=pop(:op); e2=pop(:exp); push(:exp, [:binop, e2,op,e1] ) }
 | unop exp { t "EXP-UNOP-EXP " }
 ;
 
@@ -170,26 +150,26 @@ field :  '[' exp ']' '=' exp  { t "FIELD-[exp]=exp " }
 
 
 
-binop : PLUS { t "BINOP-PLUS " }
-| MINUS { t "BINOP-MINUS " }
-| MUL { t "BINOP-MUL " }
-| DIV { t "BINOP-DIV " }
-| POWER { t "BINOP-POWER " }
-| MOD { t "BINOP-MOD " }
-| APPEND { t "BINOP-APPEND " }
-| LT { t "BINOP-LT " }
-| LTE { t "BINOP-LTE " }
-| GT { t "BINOP-GT " }
-| GTE { t "BINOP-GTE " }
-| EQUAL  { t "BINOP-EQUAL " }
-| NEQ { t "BINOP-NOTEQUAL " }
-| AND { t "BINOP-AND " }
-| OR { t "BINOP-OR " }
+binop : PLUS { push(:op, :plus) }
+| MINUS { push(:op, :minus) }
+| MUL { push(:op, :mul ) }
+| DIV { push(:op, :div) }
+| POWER { push(:op, :power) }
+| MOD { push(:op, :mod) }
+| APPEND { push(:op, :append) }
+| LT { push(:op, :lt) }
+| LTE { push(:op, :lte) }
+| GT { push(:op, :gt) }
+| GTE { push(:op, :gte) }
+| EQUAL  { push(:op, :equal) }
+| NEQ { push(:op, :neq) }
+| AND { push(:op, :and) }
+| OR { push(:op, :or) }
 ;
 
-unop : MINUS { t "UNOP-MINUS " }
-| NOT { t "UNOP-NOT "  }
-| LENGTH { t "UNOP-LENGTH " }
+unop : MINUS { push(:op, :minus ) }
+| NOT { push(:op, :not ) }
+| LENGTH { push(:op, :length ) }
 ;
 
 

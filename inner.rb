@@ -22,6 +22,18 @@ def t(s)
 end
 
 
+# expand 1 depth
+def pushflat(*args)
+  topush=[]
+  args.each do |arg|
+    if typeof(arg)==Array then
+      arg.each do |e| topush.push(e) end
+    else
+      topush.push(arg)
+    end
+  end
+  push(*topush)
+end
 
 def push(*args)
   raise "push: cannot push empty array" if args.size == 0
@@ -38,14 +50,39 @@ def pop(*args)
   end
   sym = args[0]
   if sym and sym != top[0] then 
+    ep "\n==================\n"
+    pp @stack
     raise "pop: found invlalid sym '#{top[0]}'(#{typeof(top[0])}) expected:#{sym}"
   else
     return top
   end
 end
 
+# get statements reversed
+def mpopstat()
+  ep "mpopstat(stacklen=#{@stack.size}}):"
+  out=[]
+  syms= { :if => true, :asign=>true, :function=>true, :call=>true }
+  while true
+    top = @stack.pop
+    break if !top
+    if syms[top[0]] then
+      out.push(top)
+    else
+      ep "[mpopstat:#{top[0]} is not found]"
+      @stack.push(top)
+      break
+    end
+  end
+  if out.size==0 then
+    raise "mpopstat: output is empty"
+  end
+  return out
+end
+
+# get multiple node with the 
 def mpoprev(sym)
-#  ep "mpop: sym:#{sym}\n"
+  ep "mpop(#{sym}):\n"
   out=[]
   while true
     top = @stack.pop

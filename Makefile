@@ -8,11 +8,13 @@ $(OUT):  lua.y inner.rb footer.rb
 
 
 s: $(OUT)
-#done	ruby $(OUT) -s test/num.lua
+#		ruby $(OUT) -s test/num.lua # done
+#		ruby $(OUT) test/ifthen.lua # done
+
 		ruby $(OUT) t.lua
 
-# 		ruby $(OUT) test/elseif.lua
-# 		ruby $(OUT) test/ifthen.lua
+#		ruby $(OUT) test/elseif.lua
+
 
 #		ruby $(OUT) test/var.lua	
 
