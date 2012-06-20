@@ -5,6 +5,9 @@ OPT=-q -x
 all: test testpl 
 
 test: $(OUT)
+	$(CMD) $(OUT) mini.lua
+	$(CMD) $(OUT) hello.lua
+	$(CMD) $(OUT) table.lua
 	$(CMD) $(OUT) $(OPT) ret2.lua
 	$(CMD) $(OUT) $(OPT) num.lua
 	$(CMD) $(OUT) $(OPT) var.lua	
