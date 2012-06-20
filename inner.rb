@@ -108,7 +108,7 @@ def on_error(t,v,values)
 end
 
 def escapestr(s)
-  STDERR.print "ESCAPE:#{s}\n"
+#  STDERR.print "ESCAPE:#{s}\n"
   ary = s.split("")
   out = []
   ary.each do |ch|
@@ -374,7 +374,7 @@ def parse(s,sout,exectest)
     print output,"\n"
   end
   if exectest then
-    src = "def s(*args)\nprint args.size,' '\nend\n" + output
+    src = "$cnt=0\ndef s(*args)\n$cnt+= args.size\nend\n" + output + "\nprint $cnt,'\n'\n"
     begin
       eval(src)
     rescue Exception => e
