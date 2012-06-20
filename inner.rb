@@ -9,17 +9,14 @@ def initialize()
   @tested = Hash.new(0)
 end
 
+
 def ep(*args)
-#  STDERR.print(*args)
+#  STDERR.print *args
 end
 def lep(*args)
-#  STDERR.print(*args)
+#  STDERR.print *args
 end
 
-def t(s)
-  ep(s)
-  @tested[s] += 1
-end
 
 def push(*args)
   raise "push: cannot push empty array" if args.size == 0
@@ -60,7 +57,7 @@ end
 
 # get statements reversed
 def mpopstat()
-  ep "mpopstat(stacklen=#{@stack.size}}):"
+  #ep "mpopstat(stacklen=#{@stack.size}}):"
   out=[]
   syms= { :if => true, :asign=>true, :function=>true, :call=>true, :deflocal=>true, :do=>true, :while=>true, :repeat=>true, :for=>true, :forin=>true }
   while true
@@ -69,7 +66,7 @@ def mpopstat()
     if syms[top[0]] then
       out.push(top)
     else
-      ep "[mpopstat:#{top[0]} is not allowed as a statement]"
+      #ep "[mpopstat:#{top[0]} is not allowed as a statement]"
       @stack.push(top)
       break
     end
@@ -247,7 +244,6 @@ def parse(s,sout)
     gotstr,gotlen = findstring(s)
 
     if gotstr then 
-      lep "STR=#{gotstr},#{gotlen}\n"
       @q.push([:STRING, gotstr])
       s = s[gotlen..-1]
       next
@@ -256,14 +252,12 @@ def parse(s,sout)
     case s
     when /\A\s+/      
     when /\A--\[\[.*?\]\]/m
-#      lep "LCOMMENT:-- " 
     when /\A--(.*)$/
-#      lep "COMMENT:-- "
-    when /\A(\d+\.\d+[eE][+\-]\d+)/
-      lep "EXPNUM2:#{$&} "
-      @q.push([ :EXPNUMBER, $& ])
-    when /\A(\d+[eE][+\-]\d+)/
+    when /\A(\d+\.\d+[eE][+\-]?\d+)/
       lep "EXPNUM1:#{$&} "
+      @q.push([ :EXPNUMBER, $& ])
+    when /\A(\d+[eE][+\-]?\d+)/
+      lep "EXPNUM2:#{$&} "
       @q.push([ :EXPNUMBER, $& ])
     when /\A(0x[0-9a-fA-F]+)/
       lep "HEXNUM:#{$&} "
@@ -346,7 +340,7 @@ def parse(s,sout)
 
   do_parse
 
-  #pp @stack
+  pp @stack
 
   topary = @stack.pop
   if @stack.size > 0 then
@@ -355,8 +349,10 @@ def parse(s,sout)
     raise "FATAL"
   end
 
-  print ary2s(topary),"\n"
 
+  if sout then
+    print ary2s(topary),"\n"
+  end
 
 end
 

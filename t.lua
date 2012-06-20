@@ -1,6 +1,79 @@
-  function t:getChar(x,y)
-    return self.data[int(y)][int(x)] 
-  end  
+a=1e70
+
+-- t{iter()}
+
+
+
+--[[
+    a=1
+b=2;
+c=3
+local out;
+return d;
+--]]
+
+
+--out, pos = lb.match_explist(expr, pos)
+--assert(out, "syntax error: missing expression list")
+--out = table_concat(out, ', ')
+
+--[[
+function a()
+  i=1
+  return function()
+    j=2
+    return 3
+  end
+end
+--]]
+
+  --[[
+function array2d.iter (a,indices,i1,j1,i2,j2)
+  assert_arg(1,a,'table')
+  local norowset = not (i2 and j2)
+  i1,j1,i2,j2 = default_range(a,i1,j1,i2,j2)
+  local n,i,j = i2-i1+1,i1-1,j1-1
+  local row,nr = nil,0
+  local onr = j2 - j1 + 1
+  return function()
+    j=1
+--    j = j + 1
+
+  end
+end  
+  --]]
+  
+--[[
+    if j > nr then
+      j = j1
+      i = i + 1
+      if i > i2 then return nil end
+      row = a[i]
+      nr = norowset and #row or onr      
+    end
+    
+
+
+
+
+      
+
+    if indices then
+      return i,j,row[j]
+    else
+      return row[j]
+    end
+  end
+  --]]
+
+  
+
+
+--[[
+
+function t:getChar(x,y)
+  return self.data[int(y)][int(x)] 
+end  
 
 
 
@@ -13,7 +86,7 @@ function _G.dumpbytes(str)
   return table.concat(out," ")
 
 end
-
+--]]
 
 --  a,b=1,2
 

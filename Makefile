@@ -48,8 +48,60 @@ s: $(OUT)
 	ruby $(OUT) -s test/long.lua
 	ruby $(OUT) -s test/lumino.lua
 
-r:
+pl: $(OUT)
+	ruby $(OUT) -s t.lua
+	echo
+	echo OKOKOK
+	echo
+
+
+	sleep 30
+
+	ruby $(OUT) test/pl/pretty.lua
+
+	ruby $(OUT) test/pl/OrderedMap.lua
+	ruby $(OUT) test/pl/path.lua
+	ruby $(OUT) test/pl/permute.lua
+
+	ruby $(OUT) test/pl/MultiMap.lua
+	ruby $(OUT) test/pl/operator.lua
+
+	ruby $(OUT) test/pl/Map.lua
+	ruby $(OUT) test/pl/luabalanced.lua
+
+	ruby $(OUT) test/pl/List.lua
+
+
+	ruby $(OUT) test/pl/lapp.lua
+	ruby $(OUT) test/pl/lexer.lua
+	ruby $(OUT) test/pl/input.lua
+	ruby $(OUT) test/pl/init.lua
+	ruby $(OUT) test/pl/func.lua
+	ruby $(OUT) test/pl/file.lua
+	ruby $(OUT) test/pl/app.lua
+
+	ruby $(OUT) test/pl/array2d.lua
+	ruby $(OUT) test/pl/class.lua
+	ruby $(OUT) test/pl/comprehension.lua
+	ruby $(OUT) test/pl/config.lua
+	ruby $(OUT) test/pl/data.lua
+	ruby $(OUT) test/pl/Date.lua
+
+
+
+		#ruby $(OUT) test/pl/seq.lua
+		#ruby $(OUT) test/pl/Set.lua
+		#ruby $(OUT) test/pl/sip.lua
+		#ruby $(OUT) test/pl/strict.lua
+		#ruby $(OUT) test/pl/stringio.lua
+		#ruby $(OUT) test/pl/stringx.lua
+		#ruby $(OUT) test/pl/tablex.lua
+		#ruby $(OUT) test/pl/template.lua
+		#ruby $(OUT) test/pl/test.lua
+		#ruby $(OUT) test/pl/text.lua
+		#ruby $(OUT) test/pl/utils.lua
+		#ruby $(OUT) test/pl/xml.lua
 
 clean:
-		rm $(TARGET)
+		rm $(OUT)
 

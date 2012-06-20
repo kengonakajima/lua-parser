@@ -9,17 +9,17 @@ preclow
 
 rule
 
-chunk :   { ep("chk-empty "); push( :chunk ) }
-| statlist1 { ep("chk-sl "); sl= mpopstat(); ary=[:chunk]+sl; push( *ary ) }
-| statlist1 laststat { ep("chk-sl-l "); ls=poplaststat(); sl=mpopstat(); ary=[:chunk]+sl; ary.push(ls); push(*ary) }
-| laststat { ep("chk-l "); ls=poplaststat(); push(:chunk,ls) }
+chunk :   { ep"chk-empty "; push( :chunk ) }
+| statlist1 { ep"chk-sl "; sl= pop(:statlist); push(:chunk,sl,nil ) }
+| statlist1 laststat { ep"chk-sl-l "; ls=poplaststat(); sl=pop(:statlist); push(:chunk,sl,ls) }
+| laststat { ep"chk-l "; ls=poplaststat(); push(:chunk,nil,ls) }
 ;
 
-statlist1: stat { t "sl1-first " }
-| statlist1 stat { t "sl1-append " }
+statlist1: stat semi { ep"sl1-first "; s=pop(); push(:statlist,s) }
+| statlist1 stat semi { ep"sl1-append "; s=pop(); sl=pop(:statlist); sl.push(s); push(*sl) }
 ;
 
-stat : varlist1 '=' explist1 semi { ep"st-asign "; el=pop(:explist); vl=pop(:varlist); push( :asign,vl,el) } 
+stat : varlist1 '=' explist1 { ep"st-asign "; el=pop(:explist); vl=pop(:varlist); push( :asign,vl,el) } 
 | functioncall  { ep"st-funcall "; push( *pop(:call)) }
 | DO block END  { ep"st-do "; b=pop(:block); push(:do,b) }
 | WHILE exp DO block END { ep"st-while "; b=pop(:block); e=pop(:exp); push( :while,e,b) }
@@ -28,7 +28,7 @@ stat : varlist1 '=' explist1 semi { ep"st-asign "; el=pop(:explist); vl=pop(:var
 | FOR name '=' exp ',' exp ',' exp DO block END { ep"st-for3 "; b=pop(:block); estep=pop(:exp); eend=pop(:exp); estart=pop(:exp); n=pop(:name); push(:for,n,estart,eend,estep,b) }
 | FOR namelist IN explist1 DO block END { ep"st-forin "; b=pop(:block); el=pop(:explist); nl=pop(:namelist); push(:forin,nl,el,b) }
 | FUNCTION funcname funcbody { ep"stat-funcdef "; b=pop(:funcbody);n=pop(:funcname); push(:function,n,b) }
-| LOCAL FUNCTION name funcbody { t "stat-localfunc "; b=pop(:funcbody);n=pop(:name); push(:deflocal, n, b) }
+| LOCAL FUNCTION name funcbody { ep"stat-localfunc "; b=pop(:funcbody);n=pop(:name); push(:deflocal, n, b) }
 | LOCAL namelist { ep"stat-local-def "; nl=pop(:namelist); push(:deflocal,nl,nil) }
 | LOCAL namelist '=' explist1 { ep"stat-local-init "; el=pop(:explist); nl=pop(:namelist); push(:deflocal,nl,el) }
 | ifstat { push(*pop(:if)) }
@@ -36,7 +36,8 @@ stat : varlist1 '=' explist1 semi { ep"st-asign "; el=pop(:explist); vl=pop(:var
 
 ifstat : IF exp THEN block END { ep"if-then-end ";  tru=pop(:block);e=pop(:exp); push(:if,e,tru,nil);  }
 | IF exp THEN block ELSE block END { ep"if-then-else-end "; fal=pop(:block); tru=pop(:block); e=pop(:exp); push(:if,e,tru,fal); }
-| IF exp THEN block elseifblock { ep"if-then-elseif ";
+| IF exp THEN block elseifblock {
+    ep"if-then-elseif ";
     fal=pop(:block);
     tru=pop(:block);
     e=pop(:exp);
@@ -51,13 +52,13 @@ elseifpart : ELSEIF exp THEN block { ep"elseifpart-first "; tru=pop(:block); e=p
 ;
 
 
-semi :   #{ t "SEMI-EMPTYEOL " }
-| ';' #{  t "SEMI-SEMICOLON " }
+semi :  
+| ';' 
 ;
 
 
 laststat : RETURN semi { ep"laststat-ret-noarg "; push(:return,nil) }
-| RETURN explist1 semi { ep"laststat-ret-exp "; el=pop(:explist);  ep("ELSIZE:",el.size) ; push(:return, el) } 
+| RETURN explist1 semi { ep"laststat-ret-exp "; el=pop(:explist);  ep("explsitsize:#{el.size} "); push(:return, el) } 
 | BREAK semi { ep"laststat-break "; push(:break) }
 ;
 
@@ -74,7 +75,7 @@ funcbody : '(' parlist1 ')' block END { ep"fb-prms "; b=pop(:block); pl=pop(:par
 | '(' ')' block END { ep"fb-noprms "; push( :funcbody, nil, pop(:block)) }
 ;
 
-block : chunk { push(:block, pop(:chunk)) }
+block : chunk { ep"block "; push(:block, pop(:chunk)) }
 ;
 
 parlist1 :namelist { ep"pl1-nl "; nl=pop(:namelist); push(:parlist,nl) }
@@ -90,26 +91,26 @@ varlist1 : var { ep"vl-first "; v=pop(:var); push(:varlist,v) }
 | varlist1 ',' var { ep"vl-append "; v=pop(:var); vl=pop(:varlist); vl.push(v); push(*vl) }
 ;
 
-var : name  { nm=pop(:name); push( :var, nm ) }
-| prefixexp '[' exp ']' { e=pop(:exp); pe=pop(:prefixexp); push( :var, [:tblget,pe,e]) }
-| prefixexp '.' NAME { pe=pop(:prefixexp); push(:var, [:tblget,pe,[:var,val[0].to_sym]]) }
+var : name  { ep"var-name "; nm=pop(:name); push( :var, nm ) }
+| prefixexp '[' exp ']' { ep"var-pfexp[] "; e=pop(:exp); pe=pop(:prefixexp); push( :var, [:tblget,pe,e]) }
+| prefixexp '.' NAME { ep"var-dotname "; pe=pop(:prefixexp); push(:var, [:tblget,pe,[:var,val[0].to_sym]]) }
 ;
 
 explist1 : exp { ep"el-first "; e=pop(:exp); push(:explist, e) }
 | explist1 ',' exp  { ep"el-append "; e=pop(:exp); el=pop(:explist); el.push(e); push(*el)}
 ;
 
-exp : NIL { push(:exp,[:nil]) }
-| FALSE { push(:exp, [:false]) }
-| TRUE { push(:exp, [:true]) }
-| number { push( :exp, pop()) }
-| STRING { push( :exp, [:str, "\"#{val[0]}\""] ) } 
+exp : NIL { ep"exp-nil "; push(:exp,[:nil]) }
+| FALSE { ep"exp-false "; push(:exp, [:false]) }
+| TRUE { ep"exp-true "; push(:exp, [:true]) }
+| number { ep"exp-num "; push( :exp, pop()) }
+| STRING { ep"exp-string "; push( :exp, [:str, "\"#{val[0]}\""] ) } 
 | DOTDOTDOT { ep"exp-vararg "; push( :exp, [:vararg]) }
 | function { ep"exp-func "; f=pop(:function); push(:exp,f) }
 | prefixexp { ep"exp-pfexp "; push(:exp,pop(:prefixexp)) }
 | tableconstructor { ep"exp-tcons "; tc=pop(:tcons); push(:exp,tc) }
-| exp binop exp { ep("EXP-BINOP-EXP"); e1=pop(:exp); op=pop(:op); e2=pop(:exp); push(:exp, [:binop, e2,op,e1] ) }
-| unop exp { e=pop(:exp); op=pop(:op); push(:exp, [:unop, e, op] ) }
+| exp binop exp { ep("exp-binop "); e1=pop(:exp); op=pop(:op); e2=pop(:exp); push(:exp, [:binop, e2,op,e1] ) }
+| unop exp { ep"exp-unop "; e=pop(:exp); op=pop(:op); push(:exp, [:unop, e, op] ) }
 ;
 
 number : INTNUMBER { push(:lit, val[0].to_i) } 
@@ -128,9 +129,9 @@ functioncall : prefixexp args { ep"fcall "; a=pop(:args); pe=pop(:prefixexp); pu
 | prefixexp ':' NAME args { ep"fcall-named "; a=pop(:args); pe=pop(:prefixexp); push(:call,pe,[:name,val[0].to_sym],a) }
 ;
 
-args : '(' explist1 ')' { push(:args, pop(:explist)) }
-| '(' ')' { push( :args ) }
-| tableconstructor { t "ARGS-tableconstructor " }
+args : '(' explist1 ')' { ep"args "; push(:args, pop(:explist)) }
+| '(' ')' { ep"args-empty "; push( :args ) }
+| tableconstructor { ep"args-tcons "; tc=pop(:tcons); push(:args,tc) }
 | STRING { ep"args-str "; push(:args,[:str, "\"#{val[0]}\""] ) }
 ;
 
