@@ -107,6 +107,24 @@ def on_error(t,v,values)
   raise "ERROR: t:#{t} v:#{v} values:#{values}\n"
 end
 
+def escapestr(s)
+  STDERR.print "ESCAPE:#{s}\n"
+  ary = s.split("")
+  out = []
+  ary.each do |ch|
+    if ch == "\n" then
+      out.push( "\\n" )
+    elsif ch == "\"" then
+      out.push( "\\\"")
+    elsif ch == "\\" then 
+      out.push( "\\\\" )
+    else
+      out.push(ch)
+    end
+  end
+  return out.join("")
+end
+
 def ary2s(ary)
   raise if !ary
   out= "s(" 
@@ -121,6 +139,8 @@ def ary2s(ary)
       out+=ary2s(o)
     elsif typeof(o) == NilClass then
       out+="nil"
+    elsif typeof(o) == String then
+      out+= "\"" + escapestr(o) + "\""
     else
       out+= o.to_s
     end
@@ -234,7 +254,7 @@ def findstring(s)
 end
 
 
-def parse(s,sout)
+def parse(s,sout,exectest)
 
   @q=[]   
   keywords = [ :FUNCTION, :RETURN, :END, :DO, :WHILE, :UNTIL, :REPEAT, :IF, :THEN, :ELSE, :ELSEIF, :FOR, :LOCAL, :AND, :OR, :BREAK, :NOT, :NIL, :FALSE, :TRUE, :IN ]
@@ -340,7 +360,7 @@ def parse(s,sout)
 
   do_parse
 
-  pp @stack
+#  pp @stack
 
   topary = @stack.pop
   if @stack.size > 0 then
@@ -349,9 +369,18 @@ def parse(s,sout)
     raise "FATAL"
   end
 
-
+  output = ary2s(topary)
   if sout then
-    print ary2s(topary),"\n"
+    print output,"\n"
+  end
+  if exectest then
+    src = "def s(*args)\nprint args.size,' '\nend\n" + output
+    begin
+      eval(src)
+    rescue Exception => e
+      STDERR.print "FATAL: parse error: #{e}\n",src
+      exit 1
+    end
   end
 
 end

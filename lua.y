@@ -104,7 +104,7 @@ exp : NIL { ep"exp-nil "; push(:exp,[:nil]) }
 | FALSE { ep"exp-false "; push(:exp, [:false]) }
 | TRUE { ep"exp-true "; push(:exp, [:true]) }
 | number { ep"exp-num "; push( :exp, pop()) }
-| STRING { ep"exp-string "; push( :exp, [:str, "\"#{val[0]}\""] ) } 
+| STRING { ep"exp-string "; push( :exp, [:str, val[0] ] ) } 
 | DOTDOTDOT { ep"exp-vararg "; push( :exp, [:vararg]) }
 | function { ep"exp-func "; f=pop(:function); push(:exp,f) }
 | prefixexp { ep"exp-pfexp "; push(:exp,pop(:prefixexp)) }
@@ -126,13 +126,13 @@ prefixexp : var { ep"pfexp-var "; v=pop(:var); push(:prefixexp,v)  }
 ;
 
 functioncall : prefixexp args { ep"fcall "; a=pop(:args); pe=pop(:prefixexp); push(:call, pe,nil,a) }
-| prefixexp ':' NAME args { ep"fcall-named "; a=pop(:args); pe=pop(:prefixexp); push(:call,pe,[:name,val[0].to_sym],a) }
+| prefixexp ':' NAME args { ep"fcall-named "; a=pop(:args); pe=pop(:prefixexp); push(:call,pe,[:name,val[2].to_sym],a) }
 ;
 
 args : '(' explist1 ')' { ep"args "; push(:args, pop(:explist)) }
 | '(' ')' { ep"args-empty "; push( :args ) }
 | tableconstructor { ep"args-tcons "; tc=pop(:tcons); push(:args,tc) }
-| STRING { ep"args-str "; push(:args,[:str, "\"#{val[0]}\""] ) }
+| STRING { ep"args-str "; push(:args,[:str, val[0] ] ) }
 ;
 
 tableconstructor : '{' fieldlist '}' { ep"tcons "; fl=pop(:fieldlist); push(:tcons,fl) }
