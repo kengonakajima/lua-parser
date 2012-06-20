@@ -15,19 +15,24 @@ Status
 In early experiments, but should parse most of existing Lua code.
 
 
-Build
+Build : no dependency on Lua
 ====
+Depends only on Ruby and Racc.
+
+Type this:
+
+
     > git clone https://github.com/kengonakajima/lua-parser.git
     > cd lua-parser
     > make
 
-then you get "lua2sexp" ruby script. Depends on Racc.
+
+And then you get "lua2sexp" ruby script. Depends on Racc.
 
 
 
 Usage
 ====
-Command lines are..
 
 Print usage:
 
@@ -37,10 +42,10 @@ Print usage:
     -q : be quiet(parse only)
     -x : test by executing out-put sexp
 
-Give paths to it:
+To convert:
 
     > ruby ./lua2sexp mini.lua
-    s(:chunk,s(:statlist,s(:asign,s(:varlist,s(:var,s(:name,:a))),s(:explist,s(:exp,s(:lit,1))))),nil)Example====
+    s(:chunk,s(:statlist,s(:asign,s(:varlist,s(:var,s(:name,:a))),s(:explist,s(:exp,s(:lit,1))))),nil)Examples====
 Lua:
 
     a=1
