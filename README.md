@@ -6,7 +6,7 @@ lua-parser
 
 WHAT
 ====
-Parse and convert Lua script into Ruby's executable S expression. 
+Parse and convert Lua5.1(and most of 5.2) script into Ruby's executable S expression. 
 
 It parses full Penlight source (10kLOC) for about 5 or 8 seconds.
 
