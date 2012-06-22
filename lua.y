@@ -121,7 +121,7 @@ number : INTNUMBER { push(:lit, val[0].to_i) }
 
 
 prefixexp : var { ep"pfexp-var "; v=pop(:var); push(:prefixexp,v)  } 
-| functioncall { ep "pfexp-funcall "; c=pop(:call), push(:prefixexp,c) }
+| functioncall { ep "pfexp-funcall "; c=pop(:call); push(:prefixexp,c) }
 | '(' exp ')' { ep"pfexp-paren-exp "; e=pop(:exp); push(:prefixexp,e) }                                 
 ;
 
