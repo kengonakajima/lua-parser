@@ -107,7 +107,7 @@ exp : NIL { ep"exp-nil "; push(:exp,[:nil]) }
 | STRING { ep"exp-string "; push( :exp, [:str, val[0] ] ) } 
 | DOTDOTDOT { ep"exp-vararg "; push( :exp, [:vararg]) }
 | function { ep"exp-func "; f=pop(:function); push(:exp,f) }
-| prefixexp { ep"exp-pfexp "; push(:exp,pop(:prefixexp)) }
+| prefixexp { ep"exp-pfexp "; pfe=pop(:prefixexp); push(:exp,pfe) }
 | tableconstructor { ep"exp-tcons "; tc=pop(:tcons); push(:exp,tc) }
 | exp binop exp { ep("exp-binop "); e1=pop(:exp); op=pop(:op); e2=pop(:exp); push(:exp, [:binop, e2,op,e1] ) }
 | unop exp { ep"exp-unop "; e=pop(:exp); op=pop(:op); push(:exp, [:unop, e, op] ) }
@@ -121,7 +121,7 @@ number : INTNUMBER { push(:lit, val[0].to_i) }
 
 
 prefixexp : var { ep"pfexp-var "; v=pop(:var); push(:prefixexp,v)  } 
-| functioncall { ep "pfexp-funcall "; c=pop(:call), push(:prefixexp,c) }
+| functioncall { ep "pfexp-funcall "; c=pop(:call); push(:prefixexp,c) }
 | '(' exp ')' { ep"pfexp-paren-exp "; e=pop(:exp); push(:prefixexp,e) }                                 
 ;
 
