@@ -370,6 +370,8 @@ def parse(s,fmt,exectest)
   end
 
 
+  ep "\n"
+
   if fmt =="s" then
     print ary2s(topary),"\n"
   elsif fmt =="a" then
