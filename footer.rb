@@ -3,25 +3,33 @@
 #
 
 if ARGV.size < 1 then 
-  STDERR.print "need input file(s)\nOptions:\n-q : be quiet(parse only)\n-x : test by executing out-put sexp\n"
+  STDERR.print <<EOF
+Need input file(s).
+Options:
+ -q : be quiet(parse only)
+ -x : test by executing out-put sexp
+ -a : print as array literal
+EOF
   exit 1
 end
 
-sout = true
+fmt = "s"
 exectest = false
 
 ARGV.each do |arg|
   if arg =~ /^-/ then
     if arg == "-q" then
-      sout = false
+      fmt = nil
     elsif arg == "-x"
       exectest = true
+    elsif arg == "-a"
+      fmt = "a"
     end
     
   else
 	lp = Lua.new
     s = File.open(arg).read
-    lp.parse(s,sout,exectest)
+    lp.parse(s,fmt,exectest)
   end
 end
 

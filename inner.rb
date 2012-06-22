@@ -254,7 +254,7 @@ def findstring(s)
 end
 
 
-def parse(s,sout,exectest)
+def parse(s,fmt,exectest)
 
   @q=[]   
   keywords = [ :FUNCTION, :RETURN, :END, :DO, :WHILE, :UNTIL, :REPEAT, :IF, :THEN, :ELSE, :ELSEIF, :FOR, :LOCAL, :AND, :OR, :BREAK, :NOT, :NIL, :FALSE, :TRUE, :IN ]
@@ -369,12 +369,14 @@ def parse(s,sout,exectest)
     raise "FATAL"
   end
 
-  output = ary2s(topary)
-  if sout then
-    print output,"\n"
+
+  if fmt =="s" then
+    print ary2s(topary),"\n"
+  elsif fmt =="a" then
+    pp topary
   end
   if exectest then
-    src = "$cnt=0\ndef s(*args)\n$cnt+= args.size\nend\n" + output + "\nprint $cnt,'\n'\n"
+    src = "$cnt=0\ndef s(*args)\n$cnt+= args.size\nend\n" + ary2s(topary) + "\nprint $cnt,'\n'\n"
     begin
       eval(src)
     rescue Exception => e
