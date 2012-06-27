@@ -68,7 +68,7 @@ funcname : name  { ep"funcname-name "; nm=pop(:name); push( :funcname, nm, nil) 
 ;
 
 
-function : FUNCTION funcbody { ep"func "; b=pop(:funcbody); push(:function,b) }
+function : FUNCTION funcbody { ep"func "; b=pop(:funcbody); push(:function,nil,b) }
 ;
 
 funcbody : '(' parlist1 ')' block END { ep"fb-prms "; b=pop(:block); pl=pop(:parlist); push( :funcbody, pl,b ) }
