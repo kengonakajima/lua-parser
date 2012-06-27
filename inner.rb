@@ -253,8 +253,16 @@ def findstring(s)
   return false
 end
 
+def omitShebang(s)
+  lines = s.split("\n")
+  if lines[0] and lines[0][0..0] == "#" then
+    lines.shift
+  end
+  return lines.join("\n")
+end
 
 def parse(s,fmt,exectest)
+  s=omitShebang(s)
 
   @q=[]   
   keywords = [ :FUNCTION, :RETURN, :END, :DO, :WHILE, :UNTIL, :REPEAT, :IF, :THEN, :ELSE, :ELSEIF, :FOR, :LOCAL, :AND, :OR, :BREAK, :NOT, :NIL, :FALSE, :TRUE, :IN ]
