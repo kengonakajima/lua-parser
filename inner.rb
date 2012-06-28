@@ -240,7 +240,7 @@ end
 
 def parse(s,fmt,exectest)
   s=omitShebang(s)
-
+  @comments = []
   @q=[]   
   keywords = [ :FUNCTION, :RETURN, :END, :DO, :WHILE, :UNTIL, :REPEAT, :IF, :THEN, :ELSE, :ELSEIF, :FOR, :LOCAL, :AND, :OR, :BREAK, :NOT, :NIL, :FALSE, :TRUE, :IN ]
   kwh = {}
@@ -257,7 +257,9 @@ def parse(s,fmt,exectest)
     case s
     when /\A\s+/      
     when /\A--\[\[.*?\]\]/m
+      @comments.push([:comment,$&])
     when /\A--(.*)$/
+      @comments.push([:comment,$&])
     when /\A(\d+\.\d+[eE][+\-]?\d+)/
       lep "EXPNUM1:#{$&} "
       @q.push([ :EXPNUMBER, $& ])
@@ -361,6 +363,8 @@ def parse(s,fmt,exectest)
     print ary2s(topary),"\n"
   elsif fmt =="a" then
     pp topary
+  elsif fmt =="c" then
+    pp [:commentlist, *@comments]  
   end
   if exectest then
     src = "$cnt=0\ndef s(*args)\n$cnt+= args.size\nend\n" + ary2s(topary) + "\nprint $cnt,'\n'\n"

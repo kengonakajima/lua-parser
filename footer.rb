@@ -9,6 +9,7 @@ Options:
  -q : be quiet(parse only)
  -x : test by executing out-put sexp
  -a : print as array literal
+ -c : print only comments in array format
 EOF
   exit 1
 end
@@ -24,6 +25,8 @@ ARGV.each do |arg|
       exectest = true
     elsif arg == "-a"
       fmt = "a"
+    elsif arg == "-c"
+      fmt = "c"
     end
     
   else
