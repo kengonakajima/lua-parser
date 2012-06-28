@@ -5,7 +5,7 @@
 if ARGV.size < 1 then 
   STDERR.print <<EOF
 Need input file(s).
-Options:
+Options: [-q|-a|-c] [-x]
  -q : be quiet(parse only)
  -x : test by executing out-put sexp
  -a : print as array literal
