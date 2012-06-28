@@ -55,29 +55,6 @@ def poplaststat()
   end
 end
 
-# get statements reversed
-def mpopstat()
-  #ep "mpopstat(stacklen=#{@stack.size}}):"
-  out=[]
-  syms= { :if => true, :asign=>true, :function=>true, :call=>true, :deflocal=>true, :do=>true, :while=>true, :repeat=>true, :for=>true, :forin=>true }
-  while true
-    top = @stack.pop
-    break if !top
-    if syms[top[0]] then
-      out.push(top)
-    else
-      #ep "[mpopstat:#{top[0]} is not allowed as a statement]"
-      @stack.push(top)
-      break
-    end
-  end
-  if out.size==0 then
-    ep "mpopstat: output is empty : \n"
-    pp @stack
-    raise "FATAL"
-  end
-  return out.reverse
-end
 
 # go through block and find last else placeholder
 def findlastelse(blk)
